@@ -1,0 +1,337 @@
+/* =========================================
+   MODULE: SYLLABUS (Infinite Tree Engine)
+========================================= */
+
+.syllabus-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.syllabus-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* 1. Custom Dropdown */
+.custom-select {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    z-index: 50;
+}
+
+.select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    color: var(--text-main);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.select-trigger:hover {
+    border-color: var(--brand-accent);
+}
+
+.select-options {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: all 0.2s;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.select-options.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.select-option {
+    padding: 0.8rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.select-option:last-child {
+    border-bottom: none;
+}
+
+.select-option:hover,
+.select-option.active {
+    background: var(--bg-hover);
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* 2. Smart Search Box */
+.syllabus-search-box {
+    flex: 1;
+    min-width: 220px;
+    max-width: 360px;
+}
+
+.syllabus-search-input {
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 2rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    color: var(--text-main);
+    font-size: 0.875rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.syllabus-search-input:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* 3. The Master Syllabus Card & Tree */
+.syllabus-list {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-sm);
+}
+
+/* FILL-BEHIND ACCORDION HEADERS */
+.topic-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.3s ease;
+    /* Fill-Behind Progress: Default base */
+    background: var(--bg-hover);
+}
+
+.topic-header:hover {
+    filter: brightness(1.03);
+}
+
+.topic-chevron {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: var(--text-muted);
+}
+
+.topic-header.collapsed .topic-chevron {
+    transform: rotate(-90deg);
+}
+
+.topic-content.collapsed {
+    display: none;
+}
+
+.folder-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-main);
+}
+
+.folder-badge {
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-light);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2rem;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 4. Checkable Leaf Rows */
+.syllabus-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    background-color: var(--bg-surface);
+    transition: background-color 0.15s ease;
+    position: relative;
+}
+
+.syllabus-row:last-child {
+    border-bottom: none;
+}
+
+.syllabus-row:hover {
+    background-color: var(--bg-hover);
+}
+
+.syllabus-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    flex: 1;
+    padding-right: 1rem;
+    line-height: 1.4;
+}
+
+/* 5. Infinite Hierarchy Threading */
+.tree-branch {
+    margin-left: 1.25rem;
+    border-left: 2px solid var(--border-light);
+    position: relative;
+}
+
+.tree-branch > .syllabus-row,
+.tree-branch > .folder-group > .topic-header {
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.tree-branch > .syllabus-row::before,
+.tree-branch > .folder-group > .topic-header::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 0.75rem;
+    height: 2px;
+    background-color: var(--border-light);
+}
+
+/* 6. Checkpoint Action Buttons */
+.checkpoint-group {
+    display: flex;
+    gap: 0.375rem;
+    flex-shrink: 0;
+}
+
+.tally-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    background: var(--bg-body);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 3rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+}
+
+.tally-btn:hover {
+    border-color: var(--text-muted);
+    color: var(--text-main);
+}
+
+.tally-btn.active.concept {
+    background: var(--brand-primary);
+    color: var(--text-inverse);
+    border-color: var(--brand-primary);
+}
+
+.tally-btn.active.q {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+}
+
+.tally-btn.active.r {
+    background: var(--warning);
+    color: white;
+    border-color: var(--warning);
+}
+
+.tally-btn.active.t {
+    background: var(--purple);
+    color: white;
+    border-color: var(--purple);
+}
+
+/* REVISION DEBT PULSING GLOW */
+@keyframes ambientPulse {
+    0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); border-color: rgba(245, 158, 11, 0.8); }
+    50% { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.0); border-color: rgba(245, 158, 11, 0.3); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); border-color: rgba(245, 158, 11, 0.8); }
+}
+
+.tally-btn.debt-pulse {
+    animation: ambientPulse 2s infinite ease-in-out;
+    color: var(--warning);
+    border-color: var(--warning);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    .syllabus-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .custom-select,
+    .syllabus-search-box {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .syllabus-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .checkpoint-group {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 0.4rem;
+    }
+
+    .tally-btn {
+        flex: 1;
+        min-width: 3.25rem;
+    }
+
+    .tree-branch {
+        margin-left: 0.5rem;
+    }
+}

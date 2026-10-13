@@ -1,0 +1,134 @@
+/* =========================================
+   MODULE: MOCK TESTS (Ultra-Minimalist & Fast)
+========================================= */
+
+/* 1. Constrain Width to Eliminate "Dead Space" */
+.mock-section { max-width: 750px; margin: 0 auto; }
+/* 2. Header & Controls */
+.mock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; }
+.mock-controls { display: flex; gap: 0.75rem; align-items: center; flex-wrap: nowrap; }
+
+.mock-search-input {
+    width: 200px;
+    height: 2.5rem !important; padding: 0 1.25rem !important;
+    border-radius: 2rem !important; background-color: var(--bg-surface);
+    border: 1px solid var(--border-light); color: var(--text-main); font-size: 0.875rem;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.mock-search-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+
+.mock-filter-select { 
+    height: 2.5rem !important; padding: 0 2.25rem 0 1.25rem !important; 
+    border-radius: 2rem !important; font-size: 0.875rem; font-weight: 600; 
+    background-color: var(--bg-surface); border: 1px solid var(--border-light);
+    color: var(--text-main); outline: none;
+}
+
+.mock-add-btn { 
+    height: 2.5rem !important; width: auto; padding: 0 1.5rem !important; 
+    border-radius: 2rem !important; background-color: #3b82f6 !important; 
+    color: #ffffff !important; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25); 
+    border: none; font-weight: 700; font-size: 0.875rem;
+    transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap; flex-shrink: 0; 
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.mock-add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35); }
+
+/* 3. Trend Graph Banner */
+.mock-trend-banner {
+    background-color: var(--bg-surface); border: 1px solid var(--border-light);
+    border-radius: var(--radius-2xl); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);
+}
+.trend-header { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+.trend-svg { width: 100%; height: auto; max-height: 120px; overflow: visible; }
+.trend-node { cursor: pointer; transition: transform 0.2s; transform-origin: center; }
+.trend-node:hover circle { r: 6; fill: var(--brand-accent); }
+
+/* 4. The Feed & Cards */
+.mock-feed { display: flex; flex-direction: column; gap: 1rem; padding-bottom: 3rem; }
+
+.empty-state-card { 
+    border: 2px dashed var(--border-light); display: flex; align-items: center; justify-content: center; 
+    padding: 3rem 2rem; color: var(--text-muted); font-weight: 600; font-size: 0.875rem; border-radius: var(--radius-xl); 
+}
+
+.mock-card { 
+    display: flex; flex-direction: column; padding: 1.25rem; border-radius: var(--radius-xl); background: var(--bg-surface); 
+    border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: transform 0.2s ease, box-shadow 0.2s, border-color 0.2s; 
+}
+.mock-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-light); }
+
+.mock-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.mock-meta-group { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
+.mock-meta-tags { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.mock-date { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.mock-title { font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--text-main); line-height: 1.2; }
+
+/* Premium Badge Tints */
+.badge.pin { background-color: rgba(139, 92, 246, 0.15) !important; color: #a78bfa !important; }
+.badge.rev { background-color: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; }
+
+.mock-score-group { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; flex-shrink: 0; }
+.mock-actions { display: flex; gap: 0.25rem; }
+.mock-actions .icon-btn { padding: 0.25rem; border-radius: var(--radius-sm); color: var(--text-muted); }
+.mock-actions .icon-btn:hover { background: var(--bg-hover); color: var(--danger); }
+
+.mock-score-display { display: flex; align-items: center; gap: 0.75rem; }
+.mock-percentile-pill { font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.4rem; border-radius: var(--radius-sm); line-height: 1; border: 1px solid var(--border-light); background: transparent; }
+.mock-points { font-size: 1.75rem; font-weight: 800; line-height: 1; color: var(--text-main); font-variant-numeric: tabular-nums; display: flex; align-items: baseline; }
+.mock-points span { font-size: 0.875rem; color: var(--text-muted); font-weight: 600; margin-left: 0.15rem; }
+
+/* 5. Content & Quick Add */
+.mock-content-wrapper { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-light); }
+.mock-block { padding: 0; background: transparent; border: none; }
+.mock-block-label { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; letter-spacing: 0.05em; }
+.mock-block-text { font-size: 0.875rem; color: var(--text-main); line-height: 1.5; opacity: 0.95; }
+
+.quick-add-trigger { margin-top: 1rem; opacity: 0; transition: opacity 0.2s ease; }
+.mock-card:hover .quick-add-trigger { opacity: 1; }
+.quick-add-btn { 
+    display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; 
+    border: 1px dashed var(--border-light); color: var(--text-muted); 
+    padding: 0.5rem 1rem; border-radius: var(--radius-md); font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.2s; 
+}
+.quick-add-btn:hover { border-color: var(--brand-accent); color: var(--brand-accent); }
+
+.load-more-btn { width: 100%; padding: 1rem; text-align: center; background: transparent; border: 1px dashed var(--border-light); color: var(--text-muted); font-weight: 600; border-radius: var(--radius-xl); cursor: pointer; transition: 0.2s; }
+.load-more-btn:hover { border-color: var(--text-main); color: var(--text-main); }
+
+/* 6. UNIVERSAL RESPONSIVENESS */
+@media (max-width: 640px) {
+    .mock-header { flex-direction: column; align-items: stretch; margin-bottom: 1.25rem; }
+    .mock-controls { width: 100%; justify-content: space-between; gap: 0.5rem; }
+    .mock-search-input { width: 100%; max-width: 100%; margin-bottom: 0.5rem; }
+    .mock-filter-select { flex: 1; }
+    
+    .mock-card-header { flex-direction: column; gap: 0.75rem; }
+    .mock-score-group { align-items: center; flex-direction: row-reverse; justify-content: space-between; width: 100%; }
+    .quick-add-trigger { opacity: 1; } /* Always show on mobile */
+
+    .form-grid-3 { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .form-grid-3 .apple-input { padding: 0.75rem 0.25rem; font-size: 0.8rem; }
+    .premium-modal-footer { flex-direction: column; }
+    .premium-modal-footer .action-btn { width: 100%; }
+}
+@media (max-width: 640px) {
+    /* Create a rigid, beautiful mobile grid */
+    .mock-header { flex-direction: column; align-items: stretch; margin-bottom: 1.5rem; gap: 1rem; }
+    .mock-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; width: 100%; }
+    
+    /* Search spans both columns on top */
+    .mock-search-input { grid-column: 1 / -1; width: 100%; max-width: 100%; }
+    
+    /* Dropdown and Button split perfectly 50/50 */
+    .mock-filter-select { width: 100%; }
+    .mock-add-btn { width: 100%; padding: 0 1rem !important; }
+    
+    /* ... (Keep your existing .mock-card-header and grid-3 overrides below this) ... */
+    .mock-card-header { flex-direction: column; gap: 0.75rem; }
+    .mock-score-group { align-items: center; flex-direction: row-reverse; justify-content: space-between; width: 100%; }
+    .form-grid-3 { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .form-grid-3 .apple-input { padding: 0.75rem 0.25rem; font-size: 0.8rem; }
+    .premium-modal-footer { flex-direction: column; }
+    .premium-modal-footer .action-btn { width: 100%; }
+}

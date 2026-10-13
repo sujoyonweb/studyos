@@ -1,0 +1,87 @@
+/* Home Banner */
+.home-banner { padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; margin-bottom: 1.5rem; }
+.home-banner h2 { font-size: 1.75rem; margin: 0; }
+.home-banner .subtitle { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+.home-banner-stats { display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; }
+.d-day-group { display: flex; align-items: center; gap: 0.5rem; padding-right: 2.5rem; border-right: 1px solid var(--border-light); }
+.d-day-number { font-size: 3rem; font-weight: 800; line-height: 0.9; letter-spacing: -0.05em; color: var(--text-main); }
+.d-day-labels { display: flex; flex-direction: column; justify-content: center; padding-top: 0.25rem; }
+.d-day-label-top { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-main); line-height: 1.1; }
+.d-day-label-bottom { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); line-height: 1.1; }
+.exam-select-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.05em; }
+
+/* Grids */
+.home-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+@media (min-width: 768px) { .home-grid { grid-template-columns: 3fr 2fr; } }
+.home-col { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Timeline & Tasks */
+.timeline-item { display: flex; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light); margin-bottom: 1rem; }
+.timeline-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.timeline-time { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); min-width: 70px; }
+.timeline-content { font-size: 0.875rem; font-weight: 500; color: var(--text-main); }
+.timeline-content span { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+.task-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; }
+.task-checkbox { width: 1.25rem; height: 1.25rem; border-radius: var(--radius-sm); border: 2px solid var(--border-light); cursor: pointer; }
+.task-text { font-size: 0.875rem; font-weight: 500; }
+.pin-task { margin-top: 0.5rem; }
+
+/* Progress & Streaks */
+.progress-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem; }
+.progress-hours { font-size: 2rem; font-weight: 800; line-height: 1; }
+.progress-hours span { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
+.progress-goal { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); }
+.progress-track { width: 100%; height: 10px; background-color: var(--bg-hover); border-radius: 5px; overflow: hidden; }
+.progress-fill { height: 100%; background-color: var(--brand-accent); border-radius: 5px; transition: width 0.5s ease-out; }
+
+.streak-header { margin-top: 2rem; margin-bottom: 0.5rem; }
+.streak-row { display: flex; justify-content: space-between; gap: 0.5rem; }
+.streak-circle { width: 1.75rem; height: 1.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 600; color: var(--text-muted); background-color: var(--bg-hover); border: 2px solid transparent; }
+.streak-circle.hit { background-color: var(--success); color: white; }
+.streak-circle.today { border-color: var(--border-focus); background-color: var(--bg-surface); }
+
+/* Quick Start Block (Dark Surface Match) */
+.quick-start-card {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-light);
+    text-align: center;
+    padding: 2rem;
+}
+.quick-start-label { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem; }
+.quick-start-time { font-size: 3.5rem; font-weight: 800; line-height: 1; margin-bottom: 1.5rem; font-variant-numeric: tabular-nums; color: var(--text-main); }
+.quick-start-btn {
+    background-color: var(--brand-primary);
+    color: var(--text-inverse);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-xl);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+}
+.quick-start-btn:hover { opacity: 0.9; }
+
+@media (max-width: 768px) {
+    .home-banner {
+        padding: 1.25rem;
+        gap: 1.25rem;
+    }
+    .home-banner-text {
+        flex-basis: 100%;
+        margin-bottom: 0.25rem;
+    }
+    .home-banner-stats {
+        justify-content: space-between;
+        width: 100%;
+        gap: 1rem;
+    }
+    .d-day-group {
+        padding-right: 1rem;
+    }
+    .d-day-number {
+        font-size: 2.25rem;
+    }
+}

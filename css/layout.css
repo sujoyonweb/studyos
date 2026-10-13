@@ -1,0 +1,188 @@
+/* Desktop Layout */
+.sidebar {
+    width: 16rem;
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-nav {
+    padding: 0 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow-y: auto;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border-light);
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2rem;
+    position: relative;
+}
+
+.view-section {
+    display: none;
+    max-width: 1100px;
+    margin: 0 auto;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.view-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Layout */
+.mobile-nav {
+    display: none;
+}
+
+#mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-close-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.35rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.mobile-close-btn:hover {
+    color: var(--text-main);
+    background-color: var(--bg-hover);
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    main {
+        /* Extra bottom padding so the final card clears Brave's bottom bar */
+        padding: 1rem 1rem calc(4.5rem + env(safe-area-inset-bottom, 0px)) 1rem;
+    }
+
+    .mobile-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.875rem 1.25rem;
+        background-color: var(--bg-surface);
+        border-bottom: 1px solid var(--border-light);
+        position: sticky;
+        top: 0;
+        z-index: 997;
+         flex-shrink: 0;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-nav-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .mobile-hamburger {
+        background: none;
+        border: none;
+        color: var(--text-main);
+        padding: 0.25rem;
+        display: flex;
+        cursor: pointer;
+    }
+
+    .mobile-logo {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: var(--text-main);
+        letter-spacing: -0.02em;
+    }
+
+    .mobile-streak-pill {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        padding: 0.35rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--purple);
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        height: 100dvh;
+        max-height: -webkit-fill-available;
+        width: 280px;
+        max-width: 82vw;
+        border-right: 1px solid var(--border-light);
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-footer {
+        /* Lifts Settings button safely above mobile browser toolbars */
+        padding: 1rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px)) 1rem;
+    }
+
+    #mobile-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .mobile-close-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

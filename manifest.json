@@ -1,0 +1,42 @@
+{
+  "name": "Study OS",
+  "short_name": "Study OS",
+  "description": "Offline-first syllabus tracker, routine planner, and prep-analyzer.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#0d0d0f",
+  "theme_color": "#0d0d0f",
+  "orientation": "portrait",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Stats",
+      "description": "View your daily prep analytics",
+      "url": "/index.html?view=dashboard",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Log Mock Test",
+      "short_name": "Log Test",
+      "description": "Enter new mock test scores",
+      "url": "/index.html?view=mocks",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

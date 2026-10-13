@@ -1,0 +1,165 @@
+/* =========================================
+   1. LOCAL FONTS (Offline WOFF2 Engine)
+========================================= */
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../assets/fonts/inter-v20-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../assets/fonts/inter-v20-latin-500.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../assets/fonts/inter-v20-latin-600.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../assets/fonts/inter-v20-latin-600.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('../assets/fonts/inter-v20-latin-600.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../assets/fonts/jetbrains-mono-v24-latin-regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../assets/fonts/jetbrains-mono-v24-latin-500.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../assets/fonts/jetbrains-mono-v24-latin-700.woff2') format('woff2');
+}
+
+
+/* =========================================
+   2. THEME VARIABLES (Warm Paper & Deep Night)
+========================================= */
+
+:root {
+    /* Typography (Matches style.css --font-family) */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Warm Archival Paper Light Mode */
+    --bg-body: #f2ece1;        /* Warm oatmeal paper backdrop */
+    --bg-surface: #faf6ef;     /* Soft cream parchment for cards & sidebar */
+    --bg-card: #faf6ef;
+    --bg-hover: #e8e0d2;       /* Warm pressed-linen hover state */
+    
+    --text-main: #2c2623;      /* Deep espresso charcoal ink */
+    --text-muted: #786f68;     /* Warm sepia-slate secondary text */
+    --text-inverse: #faf6ef;   /* Inverse text for active pills & C button */
+    
+    --border-light: #e0d7c8;   /* Soft warm paper border */
+    --border-focus: #2563eb;
+    
+    /* Accents & Active Pill Colors */
+    --brand-primary: #2c2623;  /* Active sidebar & C button fill */
+    --brand-accent: #2563eb;
+    --success: #0d9488;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --purple: #7c3aed;
+
+    /* Radii & Shadows */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --shadow-sm: 0 2px 10px rgba(44, 38, 35, 0.05);
+    --shadow-md: 0 8px 24px rgba(44, 38, 35, 0.08);
+    --shadow-lg: 0 20px 40px rgba(44, 38, 35, 0.14);
+    --transition: all 0.2s ease;
+}
+
+[data-theme="dark"] {
+    /* Deep Dark Mode (Softer Low-Glare Contrast) */
+    --bg-body: #0d0d0f;
+    --bg-surface: #161618;
+    --bg-card: #161618;
+    --bg-hover: #222226;
+    
+    --text-main: #d4d4d8;      /* Softened off-white (reduces eye strain) */
+    --text-muted: #8e8e93;
+    --text-inverse: #0d0d0f;
+    
+    --border-light: #27272a;
+    --border-focus: #3b82f6;
+    
+    --brand-primary: #d4d4d8;  /* Softer active sidebar & C button fill */
+    --brand-accent: #3b82f6;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --purple: #8b5cf6;
+
+    --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+
+/* =========================================
+   3. GLOBAL FONT ENFORCEMENT & PAPER TEXTURE
+========================================= */
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-family) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tactile Paper Grain Texture (Active only in Day/Light Mode) */
+html:not([data-theme="dark"]) body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)'/%3E%3C/svg%3E");
+}

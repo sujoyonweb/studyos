@@ -1,0 +1,375 @@
+{
+  "examName": "SSC Combined Graduate Level (CGL)",
+  "subjects": [
+    {
+      "name": "Quants (Maths)",
+      "units": [
+        {
+          "name": "Unit 1: Arithmetic",
+          "chapters": [
+            "Percentage",
+            "Ratio & Proportion",
+            "Simple Interest",
+            "Compound Interest",
+            "Installment",
+            "Profit and Loss",
+            "Discount",
+            "Time and Work",
+            "Pipe & Cistern",
+            "Time & Distance",
+            "Boat & Stream",
+            "Problems on Trains",
+            "Partnership",
+            "Problems on Ages"
+          ]
+        },
+        {
+          "name": "Unit 2: Advanced Math",
+          "chapters": [
+            "Number System",
+            "HCF & LCM",
+            "Average & Weighted Average",
+            "Mixture & Alligation",
+            "Algebra & Linear Equations",
+            "Surds and Indices",
+            "Simplification",
+            {
+              "name": "Plane Geometry",
+              "topics": [
+                "Lines, Angles & Transversals",
+                "Triangles: Congruence & Similarity",
+                "Centres of Triangles (Incentre, Circumcentre, Orthocentre, Centroid)",
+                "Circles: Chords, Tangents & Secants",
+                "Quadrilaterals & Regular Polygons"
+              ]
+            },
+            {
+              "name": "Mensuration 2D & 3D",
+              "topics": [
+                "2D Figures: Triangle, Quadrilateral & Circle Area/Perimeter",
+                "3D Prisms & Pyramids",
+                "Right Circular Cylinder & Cone",
+                "Sphere & Hemispheres",
+                "Frustum & Composite Solids"
+              ]
+            },
+            {
+              "name": "Trigonometry",
+              "topics": [
+                "Trigonometric Ratios & Standard Identities",
+                "Complementary Angles & Maximum/Minimum Values",
+                "Heights and Distances"
+              ]
+            },
+            "Coordinate Geometry",
+            {
+              "name": "Data Interpretation",
+              "topics": [
+                "Histograms & Frequency Polygons",
+                "Bar Diagrams & Column Charts",
+                "Pie Charts & Tabular DI"
+              ]
+            },
+            {
+              "name": "Statistics (Tier-II)",
+              "topics": [
+                "Measures of Central Tendency (Mean, Median, Mode)",
+                "Partition Values (Quartiles, Deciles, Percentiles)",
+                "Standard Deviation & Variance"
+              ]
+            },
+            "Probability (Tier-II)",
+            "AP, GP & HP Progressions",
+            "Permutations & Combinations"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "English",
+      "units": [
+        {
+          "name": "Unit 1: Grammar",
+          "chapters": [
+            "Noun",
+            "Pronoun",
+            "Adjective",
+            "Determiners",
+            "Verb & Non-Finite Verbs",
+            "Adverb",
+            "Conjunction",
+            "Preposition",
+            "Time & Tense",
+            "Conditional Sentences",
+            "Question Tags",
+            "Active and Passive Voice",
+            "Direct and Indirect Narration",
+            "Articles",
+            "Subject-Verb Agreement",
+            "Superfluous Expressions",
+            "Basics of English & Sentence Types",
+            "Transformation of Sentences",
+            "Punctuation",
+            "Cloze Test"
+          ]
+        },
+        {
+          "name": "Unit 2: Vocabulary & Comprehension",
+          "chapters": [
+            "One Word Substitution",
+            "Idioms and Phrases",
+            "Synonyms & Antonyms",
+            "Spelling Correction & Misspelt Words",
+            "Phrasal Verbs",
+            "Homonyms & Homophones",
+            "Confusing Word Pairs",
+            "Para Jumbles (Sentence Rearrangement)",
+            "Reading Comprehension (Story & Editorial Passages)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GI & Reasoning",
+      "units": [
+        {
+          "name": "Unit 1: Verbal Reasoning",
+          "chapters": [
+            "Letter Basics & Alphabet Test",
+            "Coding and Decoding",
+            "Number Series & Alphabetical Series",
+            "Alphanumeric Puzzle",
+            "Semantic & Number Analogy",
+            "Classification (Odd One Out)",
+            "Direction Sense Test",
+            "Blood Relations",
+            "Order and Ranking",
+            "Sitting Arrangement",
+            "Puzzles",
+            "Syllogism",
+            "Inequalities",
+            "Data Sufficiency",
+            "Machine Input-Output",
+            "Clock",
+            "Calendar",
+            "Mathematical Operations & Symbol Substitution",
+            "Character Puzzle & Missing Number",
+            "Logical Sequence of Words",
+            "Venn Diagrams",
+            "Word Formation & Word Building"
+          ]
+        },
+        {
+          "name": "Unit 2: Non-Verbal Reasoning",
+          "chapters": [
+            "Counting of Figures",
+            "Dice",
+            "Cube and Cuboid",
+            "Mirror & Water Images",
+            "Paper Cutting and Folding",
+            "Completion of Incomplete Patterns",
+            "Embedded Figures",
+            "Figural Series, Analogy & Classification"
+          ]
+        },
+        {
+          "name": "Unit 3: Analytical Reasoning",
+          "chapters": [
+            "Statement & Course of Action",
+            "Statement & Arguments",
+            "Statement & Assumptions",
+            "Statement & Conclusions",
+            "Deriving Inferences",
+            "Cause and Effect",
+            "Decision Making & Critical Thinking"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "units": [
+        {
+          "name": "Unit 1: Indian Polity & Constitution",
+          "chapters": [
+            "Constitutional Framework & Historical Background",
+            "Preamble, Parts, Schedules & Articles",
+            "Fundamental Rights, Duties & DPSP",
+            "Union Executive (President, PM, Council of Ministers)",
+            "Union Legislature (Parliament: Lok Sabha & Rajya Sabha)",
+            "Judiciary (Supreme Court & High Courts)",
+            "State Executive & Legislature",
+            "Local Self Government (Panchayati Raj & Municipalities)",
+            "Constitutional & Non-Constitutional Bodies (CAG, ECI, UPSC, NITI Aayog)",
+            "Important Amendments & Emergency Provisions"
+          ]
+        },
+        {
+          "name": "Unit 2: Economics",
+          "chapters": [
+            "Microeconomics: Demand, Supply & Market Structures",
+            "National Income (GDP, GNP, NNP, Per Capita Income)",
+            "Inflation, Deflation & Business Cycles",
+            "Money, Banking & RBI Monetary Policy",
+            "Public Finance, Union Budget & Fiscal Policy",
+            "Taxation Structure in India (Direct/Indirect & GST)",
+            "Five Year Plans & Economic Planning",
+            "Poverty, Unemployment & Flagship Schemes",
+            "International Financial Organizations (IMF, World Bank, WTO)"
+          ]
+        },
+        {
+          "name": "Unit 3: Geography",
+          "chapters": [
+            "Universe, Solar System & Earth Movements",
+            "Geomorphology: Lithosphere, Plate Tectonics & Earthquakes",
+            "Climatology: Atmosphere, Winds, Monsoons & Cyclones",
+            "Hydrosphere: Ocean Currents & Tides",
+            "Physiography of India (Himalayas, Plains, Plateaus & Islands)",
+            "Drainage System: Major Rivers, Lakes & Dams of India",
+            "Soils, Agriculture & Major Crops of India",
+            "Forests, Natural Vegetation & Wildlife Reserves",
+            "Mineral & Energy Resources of India",
+            "Transportation Networks (Roads, Railways, Waterways)"
+          ]
+        },
+        {
+          "name": "Unit 4: History & Culture",
+          "chapters": [
+            {
+              "name": "Ancient History",
+              "topics": [
+                "Prehistoric Period & Indus Valley Civilization",
+                "Vedic Period & Religious Movements (Buddhism & Jainism)",
+                "Mahajanapadas & Mauryan Empire",
+                "Post-Mauryan & Gupta Empire",
+                "Harshavardhana & Ancient South Indian Dynasties"
+              ]
+            },
+            {
+              "name": "Medieval History",
+              "topics": [
+                "Early Medieval Period & Arab Invasions",
+                "Delhi Sultanate (1206-1526)",
+                "Mughal Empire & Sur Dynasty",
+                "Bhakti and Sufi Movements",
+                "Vijayanagara, Bahmani & Maratha Empires"
+              ]
+            },
+            {
+              "name": "Modern History",
+              "topics": [
+                "Advent of Europeans & Expansion of British Rule",
+                "Revolt of 1857 & Early Resistance",
+                "Socio-Religious Reform Movements",
+                "Indian National Congress & Freedom Movement",
+                "Gandhian Era & Mass Movements (1915-1947)",
+                "Governor-Generals, Viceroys & Constitutional Milestones"
+              ]
+            },
+            {
+              "name": "Art & Culture",
+              "topics": [
+                "Classical and Folk Dances of India",
+                "Indian Classical Music & Traditional Instruments",
+                "Major Festivals, Fairs & Fairs of Indian States",
+                "Architecture, Temples, Caves & UNESCO World Heritage Sites",
+                "Traditional Paintings, Handicrafts & Martial Arts"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Unit 5: General Science",
+          "chapters": [
+            {
+              "name": "Physics",
+              "topics": [
+                "Units, Dimensions & Motion",
+                "Work, Power, Energy & Gravitation",
+                "Fluid Mechanics, Surface Tension & Heat",
+                "Waves, Sound & Optics (Reflection & Refraction)",
+                "Electricity, Magnetism & Nuclear Physics"
+              ]
+            },
+            {
+              "name": "Chemistry",
+              "topics": [
+                "Matter, Atomic Structure & Chemical Bonding",
+                "Periodic Table & Chemical Reactions",
+                "Acids, Bases, Salts & Solutions",
+                "Metals, Non-Metals & Metallurgy",
+                "Carbon & Its Compounds, Fuels & Everyday Chemistry"
+              ]
+            },
+            {
+              "name": "Biology",
+              "topics": [
+                "Cell Biology, Organelles & Cell Division",
+                "Human Organ Systems (Digestive, Circulatory, Respiratory, Excretory)",
+                "Nervous System, Endocrine Glands & Hormones",
+                "Human Diseases, Nutrition, Vitamins & Immunity",
+                "Plant Physiology, Photosynthesis & Plant Diseases",
+                "Ecology, Biodiversity & Environmental Issues"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Static GK & CA",
+          "chapters": [
+            "National Parks, Wildlife Sanctuaries & Biosphere Reserves",
+            "Important National & International Days with Themes",
+            "International Organizations, Summits & Headquarters",
+            "Awards, Honours, Books & Authors",
+            "Sports Events, Cups, Trophies & Terminology",
+            "Current Affairs: National, International & Major Government Initiatives"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Computer (Tier-II)",
+      "units": [
+        {
+          "name": "Unit 1: Computer Basics",
+          "chapters": [
+            "Organization of a Computer & Central Processing Unit (CPU)",
+            "Input and Output Devices",
+            "Computer Memory: Primary (RAM, ROM, Cache)",
+            "Secondary Storage & Backup Devices",
+            "Computer Ports, Buses & Hardware Interfaces",
+            "Windows Explorer & Operating System Essentials",
+            "Windows Keyboard Shortcuts & Functional Keys"
+          ]
+        },
+        {
+          "name": "Unit 2: Office Applications",
+          "chapters": [
+            "MS Word: Document Setup, Formatting & Shortcuts",
+            "MS Excel: Worksheets, Formulas, Functions & Charting",
+            "MS PowerPoint: Slide Design, Animation & Presentations"
+          ]
+        },
+        {
+          "name": "Unit 3: Internet & Communication",
+          "chapters": [
+            "Web Browsing, Search Engines & URL Structure",
+            "Internet Protocols (HTTP, HTTPS, FTP, TCP/IP)",
+            "Email Setup, Operations & Protocols (SMTP, POP3, IMAP)",
+            "Electronic Banking, UPI & Online Transaction Security"
+          ]
+        },
+        {
+          "name": "Unit 4: Networking & Cyber Security",
+          "chapters": [
+            "Networking Devices (Hub, Switch, Router, Gateway)",
+            "Network Topologies & Types (LAN, WAN, MAN)",
+            "Cyber Threats: Malware, Viruses, Worms, Trojans & Phishing",
+            "Security Countermeasures: Firewalls, Antivirus & Data Encryption"
+          ]
+        }
+      ]
+    }
+  ]
+}

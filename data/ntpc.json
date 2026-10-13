@@ -1,0 +1,127 @@
+{
+  "examName": "RRB Non-Technical Popular Categories (NTPC)",
+  "subjects": [
+    {
+      "name": "Mathematics",
+      "chapters": [
+        {
+          "name": "Unit 1: Number System & Basics",
+          "topics": [
+            "Number System",
+            "Decimals",
+            "Fractions",
+            "LCM and HCF"
+          ]
+        },
+        {
+          "name": "Unit 2: Arithmetic",
+          "topics": [
+            "Ratio and Proportions",
+            "Percentage",
+            "Time and Work",
+            "Time and Distance",
+            "Simple and Compound Interest",
+            "Profit and Loss"
+          ]
+        },
+        {
+          "name": "Unit 3: Advanced Math & Data",
+          "topics": [
+            "Elementary Algebra",
+            "Geometry and Trigonometry",
+            "Mensuration",
+            "Elementary Statistics"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Intelligence & Reasoning",
+      "chapters": [
+        {
+          "name": "Unit 1: Verbal Reasoning",
+          "topics": [
+            "Analogies",
+            "Completion of Number and Alphabetical Series",
+            "Coding and Decoding",
+            "Mathematical Operations",
+            "Similarities and Differences",
+            "Relationships (Blood Relations)",
+            "Syllogism",
+            "Jumbling",
+            "Venn Diagrams"
+          ]
+        },
+        {
+          "name": "Unit 2: Analytical Reasoning",
+          "topics": [
+            "Analytical Reasoning",
+            "Puzzle",
+            "Data Sufficiency",
+            "Statement & Conclusion",
+            "Statement & Courses of Action",
+            "Decision Making"
+          ]
+        },
+        {
+          "name": "Unit 3: Non-Verbal & Interpretation",
+          "topics": [
+            "Maps",
+            "Interpretation of Graphs"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "chapters": [
+        {
+          "name": "Unit 1: History, Art & Culture",
+          "topics": [
+            "History of India and Freedom Struggle",
+            "Art and Culture of India",
+            "Indian Literature",
+            "Monuments and Places of India"
+          ]
+        },
+        {
+          "name": "Unit 2: Polity & Economy",
+          "topics": [
+            "Indian Polity and Governance (Constitution & Political System)",
+            "Indian Economy",
+            "Flagship Government Programs"
+          ]
+        },
+        {
+          "name": "Unit 3: Geography & Environment",
+          "topics": [
+            "Physical, Social and Economic Geography of India and the World",
+            "Environmental Issues Concerning India and the World at Large",
+            "Transport Systems in India",
+            "Flora and Fauna of India"
+          ]
+        },
+        {
+          "name": "Unit 4: Science & Technology",
+          "topics": [
+            "General Science and Life Science (up to 10th CBSE)",
+            "General Scientific and Technological Developments",
+            "Space and Nuclear Program of India",
+            "Basics of Computers and Computer Applications"
+          ]
+        },
+        {
+          "name": "Unit 5: Static GK & Current Affairs",
+          "topics": [
+            "Current Events of National and International Importance",
+            "Games and Sports",
+            "UN and Other Important World Organizations",
+            "Important Government and Public Sector Organisations of India",
+            "Famous Personalities of India and the World",
+            "Common Abbreviations"
+          ]
+        }
+      ]
+    }
+  ]
+}

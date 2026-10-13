@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>Study OS</title>
+    
+    <!-- PWA Native OS Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d0d0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Study OS">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    
+    <!-- Modular CSS Engine -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/syllabus.css">
+    <link rel="stylesheet" href="css/mocks.css">
+    <link rel="stylesheet" href="css/routine.css">
+</head>
+<body>
+
+    <!-- MOBILE TOP NAV & OVERLAY -->
+    <div id="mobile-top-nav" class="mobile-nav">
+        <div class="mobile-nav-left">
+            <button id="btn-mobile-menu" class="mobile-hamburger" aria-label="Open Navigation">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="mobile-logo">Study OS</div>
+        </div>
+        <div id="mobile-nav-streak" class="mobile-streak-pill">
+            🔥 0 Day
+        </div>
+    </div>
+    
+    <div id="mobile-overlay"></div>
+
+    <!-- DESKTOP SIDEBAR / MOBILE DRAWER -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Study OS</h1>
+            <button id="btn-close-mobile-menu" class="mobile-close-btn" aria-label="Close Navigation">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="sidebar-nav" id="sidebar-nav-container">
+            <button class="nav-btn active" data-action="switch-view" data-target="home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Home
+            </button>
+            <button class="nav-btn" data-action="switch-view" data-target="dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                Dashboard
+            </button>
+            <button class="nav-btn" data-action="switch-view" data-target="syllabus">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Syllabus
+            </button>
+            <button class="nav-btn" data-action="switch-view" data-target="timer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Timer
+            </button>
+            <button class="nav-btn" data-action="switch-view" data-target="routine">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Routine
+            </button>
+            <button class="nav-btn" data-action="switch-view" data-target="mocks">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Mock Tests
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <button class="nav-btn" data-action="switch-view" data-target="settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
+                Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main>
+        
+        <!-- 1. HOME PAGE -->
+        <section id="view-home" class="view-section active">
+            
+            <div class="card home-banner">
+                <div class="home-banner-text">
+                    <h2>Welcome Back</h2>
+                    <div class="subtitle">Let's crush today's goals.</div>
+                </div>
+                
+                <div class="home-banner-stats">
+                    <div class="d-day-group">
+                        <div id="home-countdown" class="d-day-number">--</div>
+                        <div class="d-day-labels">
+                            <div class="d-day-label-top">Days</div>
+                            <div class="d-day-label-bottom">Until Exam</div>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-select-group">
+                        <div class="exam-select-label">Target Exam</div>
+                        <select id="exam-selector" class="target-exam-select">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MAIN GRID -->
+            <div class="home-grid">
+                
+                <!-- LEFT COLUMN -->
+                <div class="home-col">
+                    <!-- Dynamic Study Queue (Replaced hardcoded static schedule) -->
+                    <div class="card">
+                        <div class="widget-header">Study Queue (Up Next)</div>
+                        <div id="home-schedule-queue">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="widget-header">Syllabus Actions</div>
+                        <div id="home-syllabus-actions">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="widget-header">Top 3 Focus Tasks</div>
+                        <div id="home-focus-tasks">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="home-col">
+                    <div class="card">
+                        <div class="widget-header">Today's Progress</div>
+                        
+                        <div class="progress-header">
+                            <div id="home-hours-text" class="progress-hours">0.0<span>h</span></div>
+                            <div id="home-goal-text" class="progress-goal">Goal: 8.0h</div>
+                        </div>
+                        <div class="progress-track">
+                            <div id="home-progress-bar" class="progress-fill"></div>
+                        </div>
+
+                        <div class="widget-header streak-header">7-Day Streak</div>
+                        <div id="home-streak-container" class="streak-row">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card quick-start-card">
+                        <div class="quick-start-label">Ready to focus?</div>
+                        <div id="home-quick-timer" class="quick-start-time">+ Log</div>
+                        <button id="btn-quick-start" class="quick-start-btn">Log Study Time</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. DASHBOARD PAGE -->
+        <section id="view-dashboard" class="view-section">
+            <div class="card dash-banner">
+                <div class="dash-banner-glow"></div>
+                <div class="dash-banner-content">
+                    <div>
+                        <div class="dash-title-group">
+                            <h2 id="dash-exam-name">SSC CGL TIER 1</h2>
+                            <button id="btn-edit-goals" class="edit-goals-btn spin-hover" title="Edit Goals">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                            </button>
+                        </div>
+                        <div id="dash-badges-container" class="dash-badges"></div>
+                    </div>
+                    <div class="dash-countdown-group">
+                        <div id="dash-countdown" class="dash-countdown-number">--</div>
+                        <div class="dash-countdown-label">Days to D-Day</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats & Grids -->
+            <div class="dash-top-grid">
+                <div class="card text-center">
+                    <div class="dash-stat-label">Syllabus Mastery</div>
+                    <div class="dash-stat-val text-accent" id="dash-stat-syllabus">0%</div>
+                </div>
+                <div class="card text-center">
+                    <div class="dash-stat-label">Avg Score (Last 5)</div>
+                    <div class="dash-stat-val text-success" id="dash-stat-mocks">0.0</div>
+                    <div id="dash-stat-gap" class="dash-stat-subtext"></div>
+                </div>
+                <div class="card text-center">
+                    <div class="dash-stat-label">Avg %ile (Last 5)</div>
+                    <div class="dash-stat-val text-warning" id="dash-stat-percentile">0<span>%</span></div>
+                </div>
+                <div class="card text-center">
+                    <div class="dash-stat-label">Focus & Streaks</div>
+                    <div class="dash-stat-val text-purple" id="dash-stat-hours">0.0<span>h</span></div>
+                    <div id="dash-stat-streak" class="dash-stat-subtext text-muted mt-1">0 Day Streak</div>
+                </div>
+            </div>
+
+            <div class="dash-mid-grid">
+                <div class="card">
+                    <div class="widget-header chart-header">
+                        <span>Weekly Activity</span>
+                        <button id="btn-open-time-modal" class="log-time-btn">+ LOG TIME</button>
+                    </div>
+                    <div class="dash-chart-container" id="dash-activity-chart"></div>
+                </div>
+                <div class="card">
+                    <div class="widget-header">Mock Trend (Last 10)</div>
+                    <div class="dash-chart-container center-chart" id="dash-mock-chart"></div>
+                </div>
+            </div>
+
+            <div class="dash-bottom-grid">
+                <div class="card">
+                    <div class="widget-header">Subject Breakdown</div>
+                    <div id="dash-subject-breakdown" class="subject-breakdown-list"></div>
+                </div>
+                <div class="card card-accent-red">
+                    <div class="widget-header text-danger">Revision Debt</div>
+                    <div class="debt-subtitle">Concepts learned but never revised.</div>
+                    <div id="dash-revision-debt" class="debt-list"></div>
+                </div>
+                <div class="card card-accent-orange">
+                    <div class="widget-header text-warning">Takeaway Vault</div>
+                    <div class="debt-subtitle">Recent mock mistakes to review.</div>
+                    <div id="dash-takeaways" class="takeaway-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SYLLABUS PAGE -->
+        <section id="view-syllabus" class="view-section h-full">
+            <div class="syllabus-wrapper">
+                <h2 class="page-title">Syllabus Tracker</h2>
+                
+                <div class="syllabus-controls">
+                    <div class="custom-select" id="subject-dropdown"></div>
+                    
+                    <!-- Instant Smart Search -->
+                    <div class="syllabus-search-box">
+                        <input type="text" id="syllabus-search" class="syllabus-search-input" placeholder="Search chapters & topics...">
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <span class="toggle-label">Hide Mastered</span>
+                        <label class="toggle-switch small-toggle">
+                            <input type="checkbox" id="toggle-hide-mastered">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="syllabus-injection-point" class="syllabus-list">
+                    <div class="card loading-card">Loading Syllabus...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. TIMER PAGE (Coming Soon) -->
+        <section id="view-timer" class="view-section h-full">
+            <div class="coming-soon-wrapper">
+                <div class="coming-soon-card">
+                    <div class="cs-icon-box">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <span class="cs-badge">Coming Soon</span>
+                    <h2 class="cs-title">Focus Timer</h2>
+                    <p class="cs-desc">A distraction-free Pomodoro and stopwatch engine linked directly to your daily study goals.</p>
+                    <button class="cs-home-btn" data-action="switch-view" data-target="home">Back to Home</button>
+                </div>
+            </div>
+            <!-- Hidden DOM hooks to avoid timer crashes -->
+            <div style="display: none !important;">
+                <div id="timer-type-controls"></div><div id="timer-label"></div><div id="timer-display">25:00</div><div id="timer-today-stats"></div><button id="timer-action-btn"><svg id="timer-icon-play"></svg><svg id="timer-icon-pause"></svg></button><button id="timer-reset-btn"></button><div id="timer-modes"></div>
+            </div>
+        </section>
+
+        <!-- 6. ROUTINE PAGE (Coming Soon) -->
+        <section id="view-routine" class="view-section h-full">
+            <div class="coming-soon-wrapper">
+                <div class="coming-soon-card">
+                    <div class="cs-icon-box">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    </div>
+                    <span class="cs-badge">Coming Soon</span>
+                    <h2 class="cs-title">Routine Planner</h2>
+                    <p class="cs-desc">Reusable daily schedule templates and chronological time-blocking are arriving in a future update.</p>
+                    <button class="cs-home-btn" data-action="switch-view" data-target="home">Back to Home</button>
+                </div>
+            </div>
+            <div style="display: none !important;">
+                <div id="rt-date-picker"></div><div id="routine-timeline-view"><div id="rt-timeline-container"></div></div><div id="routine-routines-view"></div>
+            </div>
+        </section>
+
+        <!-- 8. MOCK TESTS PAGE -->
+        <section id="view-mocks" class="view-section h-full flex-col mock-section">
+            <div class="mock-header">
+                <h2 class="page-title m-0">Mock Tests</h2>
+                <div class="mock-controls">
+                    <input type="text" id="mock-search" class="mock-search-input" placeholder="Search tests...">
+                    <select id="mock-filter" class="mock-filter-select">
+                        <option value="all">All Tests</option>
+                        <option value="full">Full Length</option>
+                        <option value="sectional">Sectional</option>
+                    </select>
+                    <button id="btn-add-mock" class="action-btn mock-add-btn">+ Log Test</button>
+                </div>
+            </div>
+            <div id="mock-trend-container" class="mock-trend-banner" style="display: none;"></div>
+            <div id="mock-feed-container" class="mock-feed flex-1 overflow-y-auto"></div>
+        </section>
+
+        <!-- 9. SETTINGS PAGE -->
+        <section id="view-settings" class="view-section settings-section-wrapper">
+            <h2 class="page-title">Settings</h2>
+            <div class="settings-section">
+                <div class="widget-header">Sync & Backup Hub</div>
+                <div class="card sync-card" id="sync-dropzone">
+                    <div class="sync-stats-box">
+                        <div class="sync-stat-row">
+                            <span class="sync-stat-label">Last Export</span>
+                            <span id="sync-last-export" class="sync-stat-value text-accent">Never</span>
+                        </div>
+                        <div class="sync-stat-row">
+                            <span class="sync-stat-label">Vault Size</span>
+                            <span id="sync-record-count" class="sync-stat-value">0 Keys</span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-row" style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-light); background: var(--bg-body);">
+                        <span class="settings-label" style="font-size: 0.75rem; text-transform: uppercase;">Import Mode</span>
+                        <select id="sync-mode" class="apple-input" style="width: auto; min-width: 180px; padding: 0.5rem 2rem 0.5rem 1rem; font-weight: 600;">
+                            <option value="merge">Smart Merge (Union)</option>
+                            <option value="mirror">Clean Mirror (Overwrite)</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-export-data" class="action-btn sync-btn" style="color: var(--text-main);">
+                        <!-- Export Icon (Up/Out) -->
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Export Vault Data
+                    </button>
+                    <input type="file" id="import-file" class="hidden-input" accept=".json">
+                    <button id="btn-import-trigger" class="action-btn" style="color: var(--purple); border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);">
+                        <!-- Import Icon (Down/In) -->
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Import & Sync File
+                    </button>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="widget-header">Study Targets</div>
+                <div class="card">
+                    <div class="settings-row last-row">
+                        <span class="settings-label">Daily Goal (Hours)</span>
+                        <input type="number" id="setting-goal" class="small-number-input" value="8" min="1" max="16" step="0.5">
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="widget-header">Workspace & Display</div>
+                <div class="card">
+                    <div class="settings-row">
+                        <span class="settings-label">Theme</span>
+                        <div class="segment-group" id="setting-theme">
+                            <button class="segment-btn" data-action="setting-segment" data-key="theme" data-value="day">Day</button>
+                            <button class="segment-btn active" data-action="setting-segment" data-key="theme" data-value="night">Night</button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-label">Sound Effects</span>
+                        <label class="toggle-switch"><input type="checkbox" id="setting-sound" checked><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="settings-row last-row">
+                        <span class="settings-label">Keep Screen Awake</span>
+                        <label class="toggle-switch"><input type="checkbox" id="setting-awake" checked><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section danger-zone">
+                <button id="btn-clear-data" class="action-btn text-danger bold-btn">Clear All Data</button>
+                <div class="app-version">Study OS v1.0.0</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="os-modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <div id="os-modal-msg" class="modal-msg"></div>
+            <div id="os-modal-actions" class="modal-actions"></div>
+        </div>
+    </div>
+
+    <div id="dash-goals-modal" class="modal-overlay">
+        <div class="modal-box dash-modal">
+            <h3>Exam Profile</h3>
+            <div class="mb-md"><label class="settings-label modal-label">Exam Date (D-Day)</label><input type="date" id="dg-date" class="apple-input"></div>
+            <div class="form-grid-2 mb-md">
+                <div><label class="settings-label modal-label">Target Score</label><input type="number" id="dg-target" class="apple-input" placeholder="140"></div>
+                <div><label class="settings-label modal-label">Out of (Total)</label><input type="number" id="dg-total" class="apple-input" placeholder="200"></div>
+            </div>
+            <div class="mb-lg"><label class="settings-label modal-label">Daily Study Goal (Hours)</label><input type="number" id="dg-hours" class="apple-input" placeholder="8.5" step="0.5"></div>
+            <div class="modal-btn-group">
+                <button id="btn-close-goals-modal" class="action-btn modal-cancel-btn">Cancel</button>
+                <button id="btn-save-goals" class="action-btn modal-save-btn">Save Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dash-time-modal" class="modal-overlay">
+        <div class="modal-box dash-modal small-modal">
+            <h3>Log Study Time</h3>
+            <div class="mb-md"><label class="settings-label modal-label">Date</label><input type="date" id="dt-date" class="apple-input"></div>
+            <div class="form-grid-2 mb-lg">
+                <div><label class="settings-label modal-label">Hours</label><input type="number" id="dt-hours" class="apple-input" placeholder="2" min="0" max="24"></div>
+                <div><label class="settings-label modal-label">Minutes</label><input type="number" id="dt-mins" class="apple-input" placeholder="30" min="0" max="59"></div>
+            </div>
+            <div class="modal-btn-group">
+                <button id="btn-close-time-modal" class="action-btn modal-cancel-btn">Cancel</button>
+                <button id="btn-save-time" class="action-btn modal-save-btn">Log Time</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mock-modal-overlay" class="modal-overlay">
+        <div class="modal-box premium-modal">
+            <div class="premium-modal-header">
+                <h3 id="mock-modal-title">Log New Test</h3>
+                <button id="btn-close-mock-modal" class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div class="premium-modal-body">
+                <div class="form-row mb-md"><label class="settings-label sm-label">Test Name</label><input type="text" id="mock-name" class="premium-input bold-input" placeholder="e.g. Testbook Mock 4"></div>
+                <div class="form-grid-2 mb-md">
+                    <div><label class="settings-label sm-label">Type</label><select id="mock-type" class="apple-input"><option value="full">Full Length</option><option value="sectional">Sectional</option></select></div>
+                    <div><label class="settings-label sm-label">Date</label><input type="date" id="mock-date" class="apple-input"></div>
+                </div>
+                <div class="form-grid-3 mb-md">
+                    <div><label class="settings-label sm-label">Scored</label><input type="number" id="mock-score" class="apple-input text-center" step="0.5" placeholder="135.5"></div>
+                    <div><label class="settings-label sm-label">Out Of</label><input type="number" id="mock-total" class="apple-input text-center" value="200"></div>
+                    <div><label class="settings-label sm-label">%ile</label><input type="number" id="mock-percentile" class="apple-input text-center" step="0.1" placeholder="92.5"></div>
+                </div>
+                <div class="form-row mb-md"><label class="settings-label sm-label">Hard Questions</label><input type="text" id="mock-hardQs" class="premium-input sm-input" placeholder="e.g. Math: 14, 45 | English: 12"></div>
+                <div class="form-row"><label class="settings-label sm-label">Takeaways</label><textarea id="mock-notes" class="premium-textarea" rows="3" placeholder="What went wrong?"></textarea></div>
+            </div>
+            <div class="premium-modal-footer modal-btn-group m-0">
+                <button id="btn-cancel-mock" class="action-btn modal-cancel-btn">Cancel</button>
+                <button id="btn-save-mock" class="action-btn modal-save-btn">Save Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/mocks.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/routine.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/events.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</body>
+</html>

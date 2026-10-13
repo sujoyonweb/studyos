@@ -1,0 +1,140 @@
+/* Reset & Base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* 
+  FLUID TYPOGRAPHY & SCALING
+  This scales the entire app (margins, paddings, fonts) perfectly 
+  from a tiny mobile screen up to a massive 4K TV.
+*/
+html {
+    font-size: clamp(13px, 0.8vw + 10px, 18px); 
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    height: 100vh;
+    height: 100dvh; /* Adapts to Brave Mobile's top/bottom toolbars */
+    width: 100%;
+    overflow: hidden;
+}
+h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.025em; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-accent { color: var(--brand-accent); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--danger); }
+.text-purple { color: var(--purple); }
+.text-muted { color: var(--text-muted); }
+.mt-1 { margin-top: 0.25rem; }
+.mb-md { margin-bottom: 1.25rem; }
+.mb-lg { margin-bottom: 2rem; }
+.h-full { height: 100%; }
+.m-0 { margin: 0 !important; }
+.bg-blue { background-color: #3b82f6; }
+.bg-emerald { background-color: #10b981; }
+.bg-purple { background-color: #8b5cf6; }
+.bg-amber { background-color: #f59e0b; }
+.bg-red { background-color: #ef4444; }
+
+/* --------------------------
+Coming Soon Page
+------------------------------ */
+/* =========================================
+   MINIMALIST COMING SOON VIEW
+========================================= */
+.coming-soon-wrapper {
+    height: 100%;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.coming-soon-card {
+    max-width: 380px;
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.cs-icon-box {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 1rem;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-light);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.cs-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.12);
+    padding: 0.3rem 0.75rem;
+    border-radius: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.cs-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+}
+
+.cs-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0 0 1.75rem 0;
+}
+
+.cs-home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--text-main);
+    color: var(--bg-body);
+    border: none;
+    border-radius: 2rem;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.cs-home-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.92;
+}
