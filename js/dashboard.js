@@ -2,6 +2,14 @@
 // DASHBOARD CONTROLLER (Unified Stats Engine)
 // ==========================================
 const dashboardApp = {
+    escapeHTML: (str = '') => String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[m])),
+
     openGoalsModal: () => {
         const s = settingsApp.current;
         document.getElementById('dg-date').value = s.examDate || '';
@@ -64,9 +72,10 @@ const dashboardApp = {
 
         let daysLeft = null;
         if (s.examDate) {
-            const dDay = new Date(s.examDate);
-            const today = new Date(); today.setHours(0,0,0,0);
-            daysLeft = Math.ceil((dDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            const dDay = new Date(s.examDate + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            daysLeft = Math.ceil((dDay.getTime() - today.getTime()) / 86400000);
         }
 
         document.getElementById('dash-exam-name').innerText = currentExam.examName || "My Exam";
@@ -96,13 +105,13 @@ const dashboardApp = {
             globalStats.mastered += subjStats.mastered;
 
             subjStats.debtNodes.forEach(item => {
-                debtHTML += `<div class="debt-item"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">${item.name}</span><span class="debt-item-subject">${subj.name}</span></div>`;
+                debtHTML += `<div class="debt-item"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">${dashboardApp.escapeHTML(item.name)}</span><span class="debt-item-subject">${dashboardApp.escapeHTML(subj.name)}</span></div>`;
             });
 
             subjectHTML += `
                 <div class="subj-breakdown-item">
                     <div class="subj-breakdown-header">
-                        <span class="subj-breakdown-name" title="${subj.name}">${subj.name}</span>
+                        <span class="subj-breakdown-name" title="${dashboardApp.escapeHTML(subj.name)}">${dashboardApp.escapeHTML(subj.name)}</span>
                         <div class="subj-breakdown-meta">
                             <span class="subj-breakdown-count">${subjStats.mastered}<span>/${subjStats.leaves}</span></span>
                             <span class="subj-breakdown-pct ${subjStats.percent === 100 ? 'is-complete' : ''}">${subjStats.percent}%</span>
@@ -131,7 +140,13 @@ const dashboardApp = {
         const badgesContainer = document.getElementById('dash-badges-container');
         if (badgesContainer) badgesContainer.innerHTML = badgesHtml;
 
-        const allMocks = storage.getKey('mocks', []);
+        const activeExam = app.activeExamId || 'cgl';
+        const allMocks = storage.getKey('mocks', [])
+            .filter(m => (m.exam || 'cgl') === activeExam)
+            .sort((a, b) => {
+                const dateDiff = (b.date || '').localeCompare(a.date || '');
+                return dateDiff !== 0 ? dateDiff : (parseInt(b.id) || 0) - (parseInt(a.id) || 0);
+            });
         const fullMocks = allMocks.filter(m => m.type === 'full');
         const last5Mocks = fullMocks.slice(0, 5);
 
@@ -139,7 +154,7 @@ const dashboardApp = {
         if (last5Mocks.length > 0) {
             const sumScore = last5Mocks.reduce((sum, mock) => sum + (parseFloat(mock.score) || 0), 0);
             avgScore = (sumScore / last5Mocks.length).toFixed(1);
-            let validPercentiles = last5Mocks.filter(m => m.percentile);
+            let validPercentiles = last5Mocks.filter(m => m.percentile !== null && m.percentile !== undefined && m.percentile !== '');
             if (validPercentiles.length > 0) {
                 avgPercentile = (validPercentiles.reduce((sum, mock) => sum + parseFloat(mock.percentile), 0) / validPercentiles.length).toFixed(1);
             }
@@ -149,17 +164,21 @@ const dashboardApp = {
         document.getElementById('dash-stat-percentile').innerHTML = `${avgPercentile}<span>%</span>`;
 
         const elGap = document.getElementById('dash-stat-gap');
-        if (elGap && avgScore > 0) {
-            const gap = (avgScore - TARGET_SCORE).toFixed(1);
-            if (gap >= 0) elGap.innerHTML = `<span class="text-success">Target hit (+${gap})</span>`;
-            else elGap.innerHTML = `<span class="text-danger">${Math.abs(gap)} pts to Target</span>`;
+        if (elGap) {
+            if (avgScore > 0) {
+                const gap = (avgScore - TARGET_SCORE).toFixed(1);
+                if (gap >= 0) elGap.innerHTML = `<span class="text-success">Target hit (+${gap})</span>`;
+                else elGap.innerHTML = `<span class="text-danger">${Math.abs(gap)} pts to Target</span>`;
+            } else {
+                elGap.innerHTML = '';
+            }
         }
 
         const elTakeaways = document.getElementById('dash-takeaways');
         if (elTakeaways) {
             const mocksWithNotes = fullMocks.filter(m => m.notes).slice(0, 4);
             if (mocksWithNotes.length > 0) {
-                elTakeaways.innerHTML = mocksWithNotes.map(m => `<div style="padding: 0.75rem; background: var(--bg-hover); border-radius: var(--radius-md);"><div class="dash-stat-label">${m.name}</div><div style="font-size: 0.875rem; color: var(--text-main); line-height: 1.4;">${m.notes}</div></div>`).join('');
+                elTakeaways.innerHTML = mocksWithNotes.map(m => `<div style="padding: 0.75rem; background: var(--bg-hover); border-radius: var(--radius-md);"><div class="dash-stat-label">${dashboardApp.escapeHTML(m.name)}</div><div style="font-size: 0.875rem; color: var(--text-main); line-height: 1.4;">${dashboardApp.escapeHTML(m.notes)}</div></div>`).join('');
             } else {
                 elTakeaways.innerHTML = `<div class="text-center text-muted" style="padding: 2rem 0;">No takeaways logged yet.</div>`;
             }
@@ -217,29 +236,32 @@ const dashboardApp = {
                 let minScore = Math.max(0, Math.min(...scores) - 10);
                 let maxScore = Math.max(...scores) + 10;
                 if (minScore === maxScore) maxScore = minScore + 20;
-                const height = 130;
+
+                const svgW = 500;
+                const svgH = 130;
+                const padX = 24;
 
                 const pointsArr = scores.map((score, index) => {
-                    const x = (index / (scores.length - 1)) * 100;
-                    const y = height - (((score - minScore) / (maxScore - minScore)) * height);
+                    const x = padX + ((index / (scores.length - 1)) * (svgW - padX * 2));
+                    const y = 24 + ((svgH - 24) - (((score - minScore) / (maxScore - minScore)) * (svgH - 24)));
                     return { x, y, score, name: last10[index].name };
                 });
 
                 let svgSegments = ''; let svgCircles = '';
                 for (let i = 0; i < pointsArr.length - 1; i++) {
-                    let p1 = pointsArr[i]; let p2 = pointsArr[i+1];
-                    svgSegments += `<polygon points="${p1.x}%,${height} ${p1.x}%,${p1.y} ${p2.x}%,${p2.y} ${p2.x}%,${height}" fill="url(#mockGradient)" />`;
-                    svgSegments += `<line x1="${p1.x}%" y1="${p1.y}" x2="${p2.x}%" y2="${p2.y}" stroke="var(--success)" stroke-width="3" stroke-linecap="round"/>`;
+                    let p1 = pointsArr[i]; let p2 = pointsArr[i + 1];
+                    svgSegments += `<polygon points="${p1.x},${svgH} ${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x},${svgH}" fill="url(#mockGradient)" />`;
+                    svgSegments += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="var(--success)" stroke-width="3" stroke-linecap="round"/>`;
                 }
 
                 pointsArr.forEach(p => {
                     svgCircles += `
-                        <circle cx="${p.x}%" cy="${p.y}" r="5" fill="var(--bg-surface)" stroke="var(--success)" stroke-width="2.5" class="mock-point"><title>${p.name}: ${p.score}</title></circle>
-                        <text x="${p.x}%" y="${p.y - 12}" text-anchor="middle" fill="var(--text-main)" font-size="12" font-weight="800" class="chart-tooltip">${p.score}</text>
+                        <circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--bg-surface)" stroke="var(--success)" stroke-width="2.5" class="mock-point"><title>${dashboardApp.escapeHTML(p.name)}: ${p.score}</title></circle>
+                        <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" fill="var(--text-main)" font-size="12" font-weight="800" class="chart-tooltip">${p.score}</text>
                     `;
                 });
 
-                elMockChart.innerHTML = `<svg width="100%" height="160" style="overflow: visible; padding-top: 20px;"><defs><linearGradient id="mockGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--success)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--success)" stop-opacity="0.0"/></linearGradient></defs><line x1="0" y1="${height}" x2="100%" y2="${height}" stroke="var(--border-light)" stroke-width="2" stroke-dasharray="6,6" />${svgSegments}${svgCircles}</svg>`;
+                elMockChart.innerHTML = `<svg viewBox="0 0 ${svgW} 150" width="100%" height="160" style="overflow: visible;"><defs><linearGradient id="mockGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--success)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--success)" stop-opacity="0.0"/></linearGradient></defs><line x1="${padX}" y1="${svgH}" x2="${svgW - padX}" y2="${svgH}" stroke="var(--border-light)" stroke-width="2" stroke-dasharray="6,6" />${svgSegments}${svgCircles}</svg>`;
             } else {
                 elMockChart.innerHTML = `<div class="text-center text-muted" style="font-size: 0.875rem;">Log at least 2 full mocks to view trend.</div>`;
             }

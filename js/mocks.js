@@ -16,8 +16,17 @@ const mockApp = {
         "'": '&#39;'
     }[m])),
 
+    sortMocks: () => {
+        mockApp.data.sort((a, b) => {
+            const dateDiff = (b.date || '').localeCompare(a.date || '');
+            return dateDiff !== 0 ? dateDiff : (parseInt(b.id) || 0) - (parseInt(a.id) || 0);
+        });
+    },
+
     init: () => {
         mockApp.data = storage.getKey('mocks', []);
+        mockApp.sortMocks();
+
         const today = storage.getLocalDate();
         const dateInput = document.getElementById('mock-date');
         if (dateInput) dateInput.value = today;
@@ -53,6 +62,8 @@ const mockApp = {
             if (!mockApp.editingId) {
                 const dateInput = document.getElementById('mock-date');
                 if (dateInput && !dateInput.value) dateInput.value = storage.getLocalDate();
+                const totalInput = document.getElementById('mock-total');
+                if (totalInput) totalInput.value = settingsApp.current?.totalScore || 200;
             }
             document.getElementById('mock-modal-title').innerText = mockApp.editingId ? 'Edit Test' : 'Log New Test';
             document.getElementById('btn-save-mock').innerText = mockApp.editingId ? 'Update Test' : 'Save Test';
@@ -79,6 +90,7 @@ const mockApp = {
         document.getElementById('mock-name').value = '';
         document.getElementById('mock-date').value = storage.getLocalDate();
         document.getElementById('mock-score').value = '';
+        document.getElementById('mock-total').value = settingsApp.current?.totalScore || 200;
         document.getElementById('mock-percentile').value = '';
         document.getElementById('mock-hardQs').value = '';
         document.getElementById('mock-notes').value = '';
@@ -98,6 +110,7 @@ const mockApp = {
         if (percentile !== null && (percentile > 100 || percentile < 0)) return ui.alert("Percentile must be between 0 and 100.");
         
         const mockPayload = {
+            exam: app.activeExamId || 'cgl',
             name,
             type,
             date,
@@ -105,7 +118,8 @@ const mockApp = {
             total,
             percentile,
             hardQs: document.getElementById('mock-hardQs').value.trim(),
-            notes: document.getElementById('mock-notes').value.trim()
+            notes: document.getElementById('mock-notes').value.trim(),
+            updatedAt: Date.now()
         };
 
         if (mockApp.editingId) {
@@ -116,6 +130,7 @@ const mockApp = {
             mockApp.data.unshift(newMock);
         }
 
+        mockApp.sortMocks();
         storage.setKey('mocks', mockApp.data);
         mockApp.resetForm();
         document.getElementById('mock-modal-overlay').classList.remove('active');
@@ -146,8 +161,12 @@ const mockApp = {
         if (!container) return;
         container.innerHTML = '';
 
-        // Apply Filters & Search
-        let filteredData = mockApp.data;
+        mockApp.data = storage.getKey('mocks', []);
+        mockApp.sortMocks();
+
+        // Filter by Active Exam, Type & Search Query
+        const activeExam = (typeof app !== 'undefined' && app.activeExamId) ? app.activeExamId : 'cgl';
+        let filteredData = mockApp.data.filter(mock => (mock.exam || 'cgl') === activeExam);
         if (mockApp.filterType !== 'all') filteredData = filteredData.filter(mock => mock.type === mockApp.filterType);
         if (mockApp.searchQuery) filteredData = filteredData.filter(mock => mock.name.toLowerCase().includes(mockApp.searchQuery));
 

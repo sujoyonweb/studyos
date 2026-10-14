@@ -119,26 +119,19 @@
                 
                 <!-- LEFT COLUMN -->
                 <div class="home-col">
-                    <!-- Dynamic Study Queue (Replaced hardcoded static schedule) -->
                     <div class="card">
                         <div class="widget-header">Study Queue (Up Next)</div>
-                        <div id="home-schedule-queue">
-                            <!-- Injected dynamically by JS -->
-                        </div>
+                        <div id="home-schedule-queue"></div>
                     </div>
 
                     <div class="card">
                         <div class="widget-header">Syllabus Actions</div>
-                        <div id="home-syllabus-actions">
-                            <!-- Injected dynamically by JS -->
-                        </div>
+                        <div id="home-syllabus-actions"></div>
                     </div>
 
                     <div class="card">
                         <div class="widget-header">Top 3 Focus Tasks</div>
-                        <div id="home-focus-tasks">
-                            <!-- Injected dynamically by JS -->
-                        </div>
+                        <div id="home-focus-tasks"></div>
                     </div>
                 </div>
 
@@ -156,9 +149,7 @@
                         </div>
 
                         <div class="widget-header streak-header">7-Day Streak</div>
-                        <div id="home-streak-container" class="streak-row">
-                            <!-- Injected dynamically by JS -->
-                        </div>
+                        <div id="home-streak-container" class="streak-row"></div>
                     </div>
 
                     <div class="card quick-start-card">
@@ -191,7 +182,6 @@
                 </div>
             </div>
 
-            <!-- Stats & Grids -->
             <div class="dash-top-grid">
                 <div class="card text-center">
                     <div class="dash-stat-label">Syllabus Mastery</div>
@@ -248,12 +238,14 @@
         <!-- 3. SYLLABUS PAGE -->
         <section id="view-syllabus" class="view-section h-full">
             <div class="syllabus-wrapper">
-                <h2 class="page-title">Syllabus Tracker</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 class="page-title m-0">Syllabus Tracker</h2>
+                    <button id="btn-add-subject" class="log-time-btn" style="padding: 0.45rem 0.85rem; font-size: 0.78rem;">+ Add Topic</button>
+                </div>
                 
                 <div class="syllabus-controls">
                     <div class="custom-select" id="subject-dropdown"></div>
                     
-                    <!-- Instant Smart Search -->
                     <div class="syllabus-search-box">
                         <input type="text" id="syllabus-search" class="syllabus-search-input" placeholder="Search chapters & topics...">
                     </div>
@@ -286,7 +278,6 @@
                     <button class="cs-home-btn" data-action="switch-view" data-target="home">Back to Home</button>
                 </div>
             </div>
-            <!-- Hidden DOM hooks to avoid timer crashes -->
             <div style="display: none !important;">
                 <div id="timer-type-controls"></div><div id="timer-label"></div><div id="timer-display">25:00</div><div id="timer-today-stats"></div><button id="timer-action-btn"><svg id="timer-icon-play"></svg><svg id="timer-icon-pause"></svg></button><button id="timer-reset-btn"></button><div id="timer-modes"></div>
             </div>
@@ -336,7 +327,16 @@
                 <div class="card sync-card" id="sync-dropzone">
                     <div class="sync-stats-box">
                         <div class="sync-stat-row">
-                            <span class="sync-stat-label">Last Export</span>
+                            <span class="sync-stat-label">Cloud Status</span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span id="sync-cloud-status" class="sync-stat-value" style="font-size: 0.78rem;">○ Local Only</span>
+                                <button id="btn-toggle-cloud-config" class="icon-btn" title="Configure GitHub Cloud Token" style="padding: 0.2rem;">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sync-stat-row">
+                            <span class="sync-stat-label">Last Backup / Sync</span>
                             <span id="sync-last-export" class="sync-stat-value text-accent">Never</span>
                         </div>
                         <div class="sync-stat-row">
@@ -344,26 +344,61 @@
                             <span id="sync-record-count" class="sync-stat-value">0 Keys</span>
                         </div>
                     </div>
+
+                    <!-- Collapsible One-Time GitHub Gist Token Setup -->
+                    <div id="cloud-setup-box" style="display: none; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-light); background: var(--bg-hover);">
+                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">GitHub Secret Gist Auto-Sync (One-Time Setup)</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.75rem;">Paste a GitHub Personal Access Token with <b>gist</b> scope. Study OS will automatically create or link your private cloud vault across PC and Phone.</div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="password" id="cloud-gist-token" class="apple-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="flex: 1; font-size: 0.8rem;">
+                            <button id="btn-save-cloud-config" class="action-btn modal-save-btn" style="width: auto; padding: 0 1rem; border-radius: var(--radius-md); font-size: 0.8rem;">Link Cloud</button>
+                        </div>
+                    </div>
                     
-                    <div class="settings-row" style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-light); background: var(--bg-body);">
+                    <div class="settings-row" style="padding: 0.85rem 1.5rem; border-bottom: 1px solid var(--border-light); background: var(--bg-body);">
                         <span class="settings-label" style="font-size: 0.75rem; text-transform: uppercase;">Import Mode</span>
-                        <select id="sync-mode" class="apple-input" style="width: auto; min-width: 180px; padding: 0.5rem 2rem 0.5rem 1rem; font-weight: 600;">
+                        <select id="sync-mode" class="apple-input" style="width: auto; min-width: 180px; padding: 0.45rem 2rem 0.45rem 1rem; font-weight: 600;">
                             <option value="merge">Smart Merge (Union)</option>
                             <option value="mirror">Clean Mirror (Overwrite)</option>
                         </select>
                     </div>
 
-                    <button id="btn-export-data" class="action-btn sync-btn" style="color: var(--text-main);">
-                        <!-- Export Icon (Up/Out) -->
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        Export Vault Data
-                    </button>
-                    <input type="file" id="import-file" class="hidden-input" accept=".json">
-                    <button id="btn-import-trigger" class="action-btn" style="color: var(--purple); border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);">
-                        <!-- Import Icon (Down/In) -->
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Import & Sync File
-                    </button>
+                    <!-- Row 1: Cloud Sync & Share to Google Drive / App -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-light);">
+                        <button id="btn-cloud-sync" class="action-btn sync-btn" style="color: var(--brand-accent); border-right: 1px solid var(--border-light); border-bottom: none;">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                            Cloud Sync Now
+                        </button>
+                        <button id="btn-share-data" class="action-btn sync-btn" style="color: var(--success); border-bottom: none;">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            Share to Drive / App
+                        </button>
+                    </div>
+
+                    <!-- Row 2: Copy / Paste Instant Sync Code -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border-light);">
+                        <button id="btn-copy-code" class="action-btn sync-btn" style="color: var(--text-main); border-right: 1px solid var(--border-light); border-bottom: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Copy Sync Code
+                        </button>
+                        <button id="btn-paste-code" class="action-btn sync-btn" style="color: var(--warning); border-bottom: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                            Paste Sync Code
+                        </button>
+                    </div>
+
+                    <!-- Row 3: Classic File Export & Import -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <button id="btn-export-data" class="action-btn" style="color: var(--text-main); border-right: 1px solid var(--border-light); border-radius: 0 0 0 var(--radius-2xl);">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Download .JSON
+                        </button>
+                        <input type="file" id="import-file" class="hidden-input" accept=".json">
+                        <button id="btn-import-trigger" class="action-btn" style="color: var(--purple); border-radius: 0 0 var(--radius-2xl) 0;">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Import .JSON File
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="settings-section">
@@ -397,7 +432,7 @@
             </div>
             <div class="settings-section danger-zone">
                 <button id="btn-clear-data" class="action-btn text-danger bold-btn">Clear All Data</button>
-                <div class="app-version">Study OS v1.0.0</div>
+                <div class="app-version">Study OS v2.0.0</div>
             </div>
         </section>
     </main>
@@ -410,12 +445,35 @@
         </div>
     </div>
 
+    <!-- Add Custom Subject / Topic Modal -->
+    <div id="syllabus-add-modal" class="modal-overlay">
+        <div class="modal-box dash-modal">
+            <h3>Add Subject or Topic</h3>
+            <div class="mb-md">
+                <label class="settings-label modal-label">Subject Name</label>
+                <input type="text" id="cs-subject" class="apple-input" placeholder="e.g. Quants (Maths) or State GK">
+            </div>
+            <div class="mb-md">
+                <label class="settings-label modal-label">Unit / Folder Name</label>
+                <input type="text" id="cs-unit" class="apple-input" placeholder="e.g. Unit 3: Custom Topics">
+            </div>
+            <div class="mb-lg">
+                <label class="settings-label modal-label">Chapters / Topics (Comma-separated)</label>
+                <input type="text" id="cs-topics" class="apple-input" placeholder="e.g. Logarithms, Set Theory, Functions">
+            </div>
+            <div class="modal-btn-group">
+                <button id="btn-close-cs-modal" class="action-btn modal-cancel-btn">Cancel</button>
+                <button id="btn-save-cs-modal" class="action-btn modal-save-btn">Add to Syllabus</button>
+            </div>
+        </div>
+    </div>
+
     <div id="dash-goals-modal" class="modal-overlay">
         <div class="modal-box dash-modal">
             <h3>Exam Profile</h3>
             <div class="mb-md"><label class="settings-label modal-label">Exam Date (D-Day)</label><input type="date" id="dg-date" class="apple-input"></div>
             <div class="form-grid-2 mb-md">
-                <div><label class="settings-label modal-label">Target Score</label><input type="number" id="dg-target" class="apple-input" placeholder="140"></div>
+                <div><label class="settings-label modal-label">Target Score</label><input type="number" id="dg-target" class="apple-input" placeholder="165"></div>
                 <div><label class="settings-label modal-label">Out of (Total)</label><input type="number" id="dg-total" class="apple-input" placeholder="200"></div>
             </div>
             <div class="mb-lg"><label class="settings-label modal-label">Daily Study Goal (Hours)</label><input type="number" id="dg-hours" class="apple-input" placeholder="8.5" step="0.5"></div>
@@ -468,9 +526,11 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts (Ordered for zero-breakage dependency resolution) -->
     <script src="js/storage.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/backup.js"></script>
+    <script src="js/syllabus.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/mocks.js"></script>
     <script src="js/timer.js"></script>

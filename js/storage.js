@@ -12,14 +12,17 @@ const storage = {
         try {
             return JSON.parse(data);
         } catch (e) {
-            return data; // Return as plain string if not JSON
+            return data;
         }
     },
     
-    // Core helper to save data
+    // Core helper to save data + trigger non-blocking background auto-sync
     setKey: (key, value) => {
         const val = typeof value === 'object' ? JSON.stringify(value) : value;
         localStorage.setItem(`studyOS_${key}`, val);
+        if (typeof backupApp !== 'undefined' && backupApp.notifyDataChanged) {
+            backupApp.notifyDataChanged(key);
+        }
     },
     
     // --- Progress Tracking ---
@@ -28,9 +31,9 @@ const storage = {
     
     // --- UI State Tracking (The "Memory") ---
     getAppState: () => ({
-        exam: storage.getKey('exam', 'cgl'), // Defaults to CGL
+        exam: storage.getKey('exam', 'cgl'),
         subject: storage.getKey('subject', null),
-        view: storage.getKey('view', 'home') // Defaults to Home screen
+        view: storage.getKey('view', 'home')
     }),
     
     saveAppState: (key, value) => {

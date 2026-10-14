@@ -187,10 +187,10 @@
             "State Legislature",
             "Courts",
             "Local Bodies",
-            "Constitutional & Non Constitutional",
+            "Constitutional & Non Constitutional Bodies",
             "Emergency, Amendments & Inter State Relations",
-            "Historical Background",
-            "PYQ"
+            "Historical Background (Acts)",
+            "Polity PYQ"
           ]
         },
         {
@@ -225,7 +225,7 @@
             "Condensation & Precipitation",
             "Wind Systems",
             "Cyclone & Ocean Currents",
-            "India & It's Location",
+            "India & Its Location",
             "Himalayas",
             "Peninsular Plateau",
             "Plains & Islands",
@@ -290,13 +290,13 @@
                 "Bhagat Singh & Revolutionary Activities",
                 "Civil Disobedience Movement",
                 "Quit India Movement",
-                "Governor-Generals & Viceroys and the 1942–1947"
+                "Governor-Generals & Viceroys (1942–1947)"
               ]
             }
           ]
         },
         {
-          "name": "Static GK",
+          "name": "Unit 5: Static GK",
           "chapters": [
             "All Music Question 2025",
             "All Folk Dance Question 2025",
@@ -317,7 +317,7 @@
           ]
         },
         {
-          "name": "Unit 5: General Science",
+          "name": "Unit 6: General Science",
           "chapters": [
             {
               "name": "Physics",

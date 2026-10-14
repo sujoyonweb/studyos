@@ -1,4 +1,4 @@
-const APP_VERSION = 'v1.0.0';
+const APP_VERSION = 'v1.0.1';
 const CACHE_NAME = `study-os-${APP_VERSION}`;
 
 // Core assets required for the app shell to boot instantly
@@ -26,6 +26,8 @@ const APP_SHELL = [
     './js/routine.js',
     './js/app.js',
     './js/events.js',
+    './js/backup.js',
+    './js/syllabus.js',
     './data/cgl.json',
     './data/ntpc.json',
     './data/upsc.json'
