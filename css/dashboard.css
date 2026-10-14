@@ -146,3 +146,33 @@
 .dash-mini-progress-bar.is-complete {
     background: var(--success);
 }
+
+
+
+.subject-breakdown-list {
+    gap: 0.45rem; /* Tightened from 0.75rem */
+}
+
+.subj-breakdown-item {
+    padding: 0.45rem 0.8rem; /* Tightened vertical padding from 0.7rem */
+    background-color: var(--bg-hover);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.subj-breakdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.3rem; /* Tightened from 0.5rem */
+}
+
+.dash-mini-progress {
+    width: 100%;
+    height: 5px; /* Slimmed from 6px */
+    background-color: var(--bg-surface);
+    border-radius: 999px;
+    overflow: hidden;
+}
