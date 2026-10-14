@@ -1,114 +1,65 @@
 // ==========================================
-// CORE APPLICATION CONTROLLER & SYLLABUS ENGINE
+// CORE APPLICATION, SETTINGS & HOME CONTROLLER
 // ==========================================
 
-const syllabusEngine = {
-    slugify: (text) => {
-        return (text || '').toString().toLowerCase().trim()
-            .replace(/\s+/g, '_')
-            .replace(/[^\w\-]+/g, '')
-            .replace(/\-\-+/g, '_')
-            .replace(/^-+/, '')
-            .replace(/-+$/, '');
-    },
-
-    parseNode: (node, parentId = '', legacyIndex = null, legacyParentId = null) => {
-        const name = typeof node === 'string' ? node : (node.name || 'Untitled');
-        const slug = syllabusEngine.slugify(name);
-        let id = parentId ? `${parentId}__${slug}` : slug;
-        let legacyId = null;
-
-        if (typeof node === 'object' && node.id) id = node.id;
-        if (legacyIndex !== null && legacyParentId) legacyId = `${legacyParentId}_m${legacyIndex}`;
-
-        let children = [];
-        if (typeof node === 'object') {
-            const rawChildren = node.units || node.topics || node.chapters || node.subtopics || node.items;
-            if (Array.isArray(rawChildren) && rawChildren.length > 0) {
-                children = rawChildren.map(c => syllabusEngine.parseNode(c, id));
-            } else if (Array.isArray(node.microtopics) && node.microtopics.length > 0) {
-                children = node.microtopics.map((m, i) => syllabusEngine.parseNode(m, id, i, id));
-            }
-        }
-
-        if (children.length > 0) return { type: 'folder', id, name, children };
-        return { type: 'leaf', id, name, legacyId };
-    },
-
-    buildTree: (examData) => {
-        if (!examData || !Array.isArray(examData.subjects)) return [];
-        return examData.subjects.map(subj => {
-            const subjId = subj.id || syllabusEngine.slugify(subj.name);
-            const topics = subj.units || subj.topics || subj.chapters || [];
-            return {
-                id: subjId,
-                name: subj.name,
-                tree: topics.map(t => syllabusEngine.parseNode(t, subjId))
-            };
-        });
-    },
-
-    getStats: (node, progressData) => {
-        let stats = { leaves: 0, c: 0, q: 0, r: 0, t: 0, pts: 0, maxPts: 0, mastered: 0, debtNodes: [] };
-        const pData = progressData || app.progressData || {};
-
-        if (node.type === 'leaf') {
-            stats.leaves = 1;
-            stats.maxPts = 3;
-
-            const hasC = pData[`${node.id}_C`] || (node.legacyId && pData[`${node.legacyId}_C`]);
-            const qCount = pData[`${node.id}_Q`] || (node.legacyId && pData[`${node.legacyId}_Q`]) || 0;
-            const rLevel = pData[`${node.id}_R`] || (node.legacyId && pData[`${node.legacyId}_R`]) || 0;
-            const rDateStr = pData[`${node.id}_R_D`];
-            const tCount = pData[`${node.id}_T`] || (node.legacyId && pData[`${node.legacyId}_T`]) || 0;
-
-            if (hasC) { stats.c = 1; stats.pts += 1; }
-            if (qCount > 0) { stats.q = 1; stats.pts += 1; }
-            if (tCount > 0) { stats.t = 1; stats.pts += 1; }
-            if (rLevel > 0) { stats.r = 1; }
-            if (hasC && qCount > 0 && tCount > 0) stats.mastered = 1;
-
-            if (hasC) {
-                let isDebt = false;
-                if (rLevel === 0 || pData[`${node.id}_broken`]) {
-                    isDebt = true;
-                } else if (rDateStr) {
-                    const todayMidnight = new Date();
-                    todayMidnight.setHours(0, 0, 0, 0);
-                    const daysSince = Math.floor((todayMidnight - new Date(rDateStr + 'T00:00:00')) / 86400000);
-                    if ((rLevel === 1 && daysSince >= 7) || (rLevel === 2 && daysSince >= 21) || (rLevel >= 3 && daysSince >= 45)) {
-                        isDebt = true;
-                    }
-                }
-                if (isDebt) stats.debtNodes.push({ name: node.name, id: node.id });
-            }
-        } else if (node.children) {
-            node.children.forEach(c => {
-                const cStats = syllabusEngine.getStats(c, pData);
-                stats.leaves += cStats.leaves;
-                stats.maxPts += cStats.maxPts;
-                stats.c += cStats.c;
-                stats.q += cStats.q;
-                stats.r += cStats.r;
-                stats.t += cStats.t;
-                stats.pts += cStats.pts;
-                stats.mastered += cStats.mastered;
-                stats.debtNodes = stats.debtNodes.concat(cStats.debtNodes);
-            });
-        }
-
-        stats.percent = stats.maxPts === 0 ? 0 : Math.round((stats.pts / stats.maxPts) * 100);
-        return stats;
-    }
-};
-
 const settingsApp = {
-    defaultSettings: { dailyGoal: 8, targetScore: 140, totalScore: 200, examDate: '2027-04-01', autoFlow: false, breakDuration: 5, focusDuration: 25, theme: 'night', soundEffects: true, keepAwake: true },
+    wakeLock: null,
+
+    defaultProfiles: {
+        cgl: { targetScore: 165, totalScore: 200, examDate: '2027-09-15' },
+        ntpc: { targetScore: 85, totalScore: 100, examDate: '2027-06-01' },
+        upsc: { targetScore: 110, totalScore: 200, examDate: '2027-05-25' }
+    },
+
+    defaultSettings: {
+        dailyGoal: 8,
+        targetScore: 165,
+        totalScore: 200,
+        examDate: '2027-09-15',
+        prepStartDate: null,
+        examProfiles: {},
+        autoFlow: false,
+        breakDuration: 5,
+        focusDuration: 25,
+        theme: 'night',
+        soundEffects: true,
+        keepAwake: true
+    },
 
     init: () => {
         const savedSettings = storage.getKey('preferences', settingsApp.defaultSettings);
         settingsApp.current = { ...settingsApp.defaultSettings, ...savedSettings };
+
+        if (!settingsApp.current.examProfiles || typeof settingsApp.current.examProfiles !== 'object') {
+            settingsApp.current.examProfiles = {};
+        }
+        Object.keys(settingsApp.defaultProfiles).forEach(exId => {
+            if (!settingsApp.current.examProfiles[exId]) {
+                if (exId === 'cgl' && savedSettings) {
+                    settingsApp.current.examProfiles.cgl = {
+                        targetScore: savedSettings.targetScore || 165,
+                        totalScore: savedSettings.totalScore || 200,
+                        examDate: savedSettings.examDate || '2027-09-15'
+                    };
+                } else {
+                    settingsApp.current.examProfiles[exId] = { ...settingsApp.defaultProfiles[exId] };
+                }
+            }
+        });
+
+        if (!settingsApp.current.prepStartDate) {
+            settingsApp.current.prepStartDate = storage.getLocalDate();
+        }
+        storage.setKey('preferences', settingsApp.current);
+
         settingsApp.applyTheme(settingsApp.current.theme);
+        settingsApp.applyWakeLock(settingsApp.current.keepAwake);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && settingsApp.current.keepAwake) {
+                settingsApp.applyWakeLock(true);
+            }
+        });
         
         setTimeout(() => {
             const elGoal = document.getElementById('setting-goal');
@@ -118,15 +69,57 @@ const settingsApp = {
             if (elSound) elSound.checked = settingsApp.current.soundEffects;
             if (elAwake) elAwake.checked = settingsApp.current.keepAwake;
             settingsApp.setSegmentUI('setting-theme', settingsApp.current.theme);
-            settingsApp.updateSyncUI();
+            if (typeof backupApp !== 'undefined') backupApp.updateUI();
         }, 100); 
+    },
+
+    syncExamProfile: (examId) => {
+        const id = examId || 'cgl';
+        if (!settingsApp.current.examProfiles) settingsApp.current.examProfiles = {};
+        if (!settingsApp.current.examProfiles[id]) {
+            settingsApp.current.examProfiles[id] = { ...(settingsApp.defaultProfiles[id] || settingsApp.defaultProfiles.cgl) };
+        }
+        const profile = settingsApp.current.examProfiles[id];
+        settingsApp.current.targetScore = profile.targetScore;
+        settingsApp.current.totalScore = profile.totalScore;
+        settingsApp.current.examDate = profile.examDate;
+        storage.setKey('preferences', settingsApp.current);
+
+        const mockTotalInput = document.getElementById('mock-total');
+        if (mockTotalInput && (!mockApp || !mockApp.editingId)) {
+            mockTotalInput.value = profile.totalScore;
+        }
     },
 
     update: (key, value) => {
         settingsApp.current[key] = value;
+        if (['targetScore', 'totalScore', 'examDate'].includes(key)) {
+            const activeExam = app.activeExamId || 'cgl';
+            if (!settingsApp.current.examProfiles) settingsApp.current.examProfiles = {};
+            if (!settingsApp.current.examProfiles[activeExam]) {
+                settingsApp.current.examProfiles[activeExam] = { ...(settingsApp.defaultProfiles[activeExam] || settingsApp.defaultProfiles.cgl) };
+            }
+            settingsApp.current.examProfiles[activeExam][key] = value;
+        }
         storage.setKey('preferences', settingsApp.current);
         if (key === 'theme') settingsApp.applyTheme(value);
+        if (key === 'keepAwake') settingsApp.applyWakeLock(value);
         if (key === 'dailyGoal' || key === 'examDate') progressTracker.updateHomeUI();
+    },
+
+    applyWakeLock: async (enabled) => {
+        if (!('wakeLock' in navigator)) return;
+        try {
+            if (enabled && !settingsApp.wakeLock) {
+                settingsApp.wakeLock = await navigator.wakeLock.request('screen');
+                settingsApp.wakeLock.addEventListener('release', () => {
+                    settingsApp.wakeLock = null;
+                });
+            } else if (!enabled && settingsApp.wakeLock) {
+                await settingsApp.wakeLock.release();
+                settingsApp.wakeLock = null;
+            }
+        } catch (e) {}
     },
 
     updateSegment: (key, value, buttonElement) => {
@@ -149,162 +142,17 @@ const settingsApp = {
         else document.documentElement.removeAttribute('data-theme');
     },
 
-    updateSyncUI: () => {
-        const lastSync = storage.getKey('lastExportTime', 'Never');
-        const count = Object.keys(localStorage).filter(k => k.startsWith('studyOS_')).length;
-        
-        const elLastExport = document.getElementById('sync-last-export');
-        const elRecordCount = document.getElementById('sync-record-count');
-        
-        if (elLastExport) {
-            if (lastSync === 'Never') elLastExport.innerText = lastSync;
-            else {
-                const d = new Date(lastSync);
-                elLastExport.innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-        }
-        if (elRecordCount) elRecordCount.innerText = `${count} Keys`;
-    },
-
-    exportData: () => {
-        const payload = {
-            _meta: { timestamp: new Date().toISOString(), version: '1.2.0', device: navigator.platform },
-            data: {}
-        };
-
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key.startsWith('studyOS_')) {
-                const raw = localStorage.getItem(key);
-                try { payload.data[key.replace('studyOS_', '')] = JSON.parse(raw); } 
-                catch(e) { payload.data[key.replace('studyOS_', '')] = raw; }
-            }
-        }
-
-        storage.setKey('lastExportTime', payload._meta.timestamp);
-        settingsApp.updateSyncUI();
-
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload));
-        const a = document.createElement('a');
-        a.setAttribute("href", dataStr);
-        a.setAttribute("download", `studyOS_Vault_${storage.getLocalDate()}.json`);
-        document.body.appendChild(a); a.click(); a.remove();
-    },
-
-    importData: (eventOrFile) => {
-        const file = eventOrFile.target ? eventOrFile.target.files[0] : eventOrFile;
-        if (!file) return;
-        
-        const mode = document.getElementById('sync-mode')?.value || 'merge';
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            try {
-                const importedJSON = JSON.parse(e.target.result);
-                const sourceData = importedJSON.data || importedJSON; 
-                if (!sourceData || typeof sourceData !== 'object') throw new Error("Invalid format");
-                
-                // 1. CREATE SAFETY SNAPSHOT
-                const snapshot = {};
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k.startsWith('studyOS_')) snapshot[k] = localStorage.getItem(k);
-                }
-                sessionStorage.setItem('studyOS_snapshot', JSON.stringify(snapshot));
-
-                // 2. APPLY DATA
-                if (mode === 'mirror') {
-                    Object.keys(localStorage).forEach(k => { if (k.startsWith('studyOS_')) localStorage.removeItem(k); });
-                    Object.entries(sourceData).forEach(([k, v]) => storage.setKey(k, v));
-                } else {
-                    Object.entries(sourceData).forEach(([k, impVal]) => {
-                        if (impVal === null || impVal === undefined) return;
-                        const localVal = storage.getKey(k);
-                        
-                        if (k === 'progress' && typeof impVal === 'object') {
-                            const newProg = { ...(localVal || {}) };
-                            Object.keys(impVal).forEach(pk => {
-                                if (pk.endsWith('_broken')) {
-                                    const baseId = pk.slice(0, -7);
-                                    const tVal = Math.max(newProg[`${baseId}_T`] || 0, impVal[`${baseId}_T`] || 0);
-                                    newProg[pk] = tVal > 0 ? false : Boolean(newProg[pk] || impVal[pk]);
-                                } else if (typeof impVal[pk] === 'number') {
-                                    newProg[pk] = Math.max(newProg[pk] || 0, impVal[pk]);
-                                } else if (typeof impVal[pk] === 'boolean') {
-                                    newProg[pk] = Boolean(newProg[pk] || impVal[pk]);
-                                } else if (typeof impVal[pk] === 'string') {
-                                    if (!newProg[pk] || new Date(impVal[pk]) > new Date(newProg[pk])) newProg[pk] = impVal[pk];
-                                }
-                            });
-                            storage.setKey(k, newProg);
-                        } 
-                        else if (k === 'timeLogs' && typeof impVal === 'object') {
-                            const newLogs = { ...(localVal || {}) };
-                            Object.keys(impVal).forEach(date => newLogs[date] = Math.max(newLogs[date] || 0, impVal[date]));
-                            storage.setKey(k, newLogs);
-                        } 
-                        else if ((k === 'mocks' || k === 'routine') && Array.isArray(impVal)) {
-                            const mergedArr = Array.isArray(localVal) ? [...localVal] : [];
-                            impVal.forEach(impItem => {
-                                if (!impItem || !impItem.id) return;
-                                const idx = mergedArr.findIndex(m => m.id === impItem.id);
-                                if (idx === -1) mergedArr.push(impItem);
-                                else mergedArr[idx] = { ...mergedArr[idx], ...impItem }; 
-                            });
-                            if (k === 'mocks') mergedArr.sort((a, b) => (parseInt(b.id) || 0) - (parseInt(a.id) || 0));
-                            if (k === 'routine') mergedArr.sort((a, b) => (a.rawMins || 0) - (b.rawMins || 0));
-                            storage.setKey(k, mergedArr);
-                        } 
-                        else {
-                            storage.setKey(k, impVal);
-                        }
-                    });
-                }
-
-                // Reset input so re-selecting the same file triggers change event
-                if (eventOrFile.target) eventOrFile.target.value = '';
-
-                // Sync in-memory state immediately
-                app.progressData = storage.getProgress() || {};
-                settingsApp.updateSyncUI();
-
-                // 3. SUCCESS ALERT WITH UNDO BUTTON
-                ui.confirm(
-                    "Sync Complete! Do you want to apply these changes or undo?", 
-                    () => { window.location.reload(); }, 
-                    false, 
-                    "Undo Restore", 
-                    () => { settingsApp.undoImport(); }
-                );
-
-            } catch (err) {
-                if (eventOrFile.target) eventOrFile.target.value = '';
-                ui.alert("Invalid or corrupted backup file.");
-                console.error(err);
-            }
-        };
-        reader.readAsText(file);
-    },
-
-    undoImport: () => {
-        const snapshotRaw = sessionStorage.getItem('studyOS_snapshot');
-        if (snapshotRaw) {
-            const snapshot = JSON.parse(snapshotRaw);
-            Object.keys(localStorage).forEach(k => { if (k.startsWith('studyOS_')) localStorage.removeItem(k); });
-            Object.entries(snapshot).forEach(([k, v]) => localStorage.setItem(k, v));
-            sessionStorage.removeItem('studyOS_snapshot');
-            ui.alert("Rollback successful. Your data has been restored.");
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            ui.alert("No snapshot found to restore.");
-        }
-    },
+    // Safe delegates to backupApp
+    updateSyncUI: () => backupApp.updateUI(),
+    exportData: () => backupApp.exportData(),
+    importData: (e) => backupApp.importData(e),
+    undoImport: () => backupApp.undoImport(),
 
     clearAllData: () => {
         const executeClear = () => { localStorage.clear(); window.location.reload(); };
         if (typeof ui !== 'undefined' && ui.confirm) {
-            ui.confirm("Are you sure? This deletes ALL data permanently.", executeClear, true);
-        } else if (window.confirm("Are you sure? This deletes ALL data permanently.")) {
+            ui.confirm("Are you sure? This deletes ALL local data permanently.", executeClear, true);
+        } else if (window.confirm("Are you sure? This deletes ALL local data permanently.")) {
             executeClear();
         }
     }
@@ -329,9 +177,9 @@ const progressTracker = {
         if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
     },
 
-    // UPGRADE: SMART MOCK ILLUSION DETECTOR (Word-Boundary + Timestamped Rehab)
     detectIllusions: (examTree, progressData) => {
-        const mocks = storage.getKey('mocks', []);
+        const activeExam = app.activeExamId || 'cgl';
+        const mocks = storage.getKey('mocks', []).filter(m => (m.exam || 'cgl') === activeExam);
         let brokenNodes = [];
         if (!examTree || mocks.length === 0) return brokenNodes;
 
@@ -353,13 +201,21 @@ const progressTracker = {
 
         const traverse = (node, subjName, subjId) => {
             if (node.type === 'leaf') {
+                const isStudied = Boolean(
+                    progressData[`${node.id}_C`] ||
+                    (progressData[`${node.id}_Q`] > 0) ||
+                    (progressData[`${node.id}_T`] > 0) ||
+                    progressData[`${node.id}_broken`]
+                );
+                if (!isStudied) return;
+
                 const patterns = getMatchPatterns(node.name);
                 if (patterns.length > 0) {
                     const lastRehabTime = progressData[`${node.id}_rehabTime`] || 0;
                     let strikes = 0;
 
                     mocks.forEach(m => {
-                        const mockTime = parseInt(m.id) || 0;
+                        const mockTime = Math.max(parseInt(m.id) || 0, m.updatedAt || 0);
                         if (mockTime > lastRehabTime) {
                             const mText = `${m.hardQs || ''} ${m.notes || ''}`;
                             if (patterns.some(regex => regex.test(mText))) {
@@ -437,7 +293,6 @@ const progressTracker = {
         progressTracker.renderVelocityChart();
     },
 
-    // UPGRADE: VELOCITY BURN-DOWN CHART + QUICK LOG BUTTON
     renderVelocityChart: () => {
         const velocityCard = document.querySelector('.quick-start-card');
         if (!velocityCard) return;
@@ -459,11 +314,18 @@ const progressTracker = {
         
         const todayMidnight = new Date();
         todayMidnight.setHours(0, 0, 0, 0);
+
+        let earliestDateStr = settingsApp.current.prepStartDate || storage.getLocalDate();
+        const logDates = Object.keys(progressTracker.getLogs()).sort();
+        if (logDates.length > 0 && logDates[0] < earliestDateStr) earliestDateStr = logDates[0];
+
+        const startMidnight = new Date(earliestDateStr + 'T00:00:00');
+        const daysElapsed = Math.max(1, Math.floor((todayMidnight - startMidnight) / 86400000) + 1);
+
         const daysLeft = settingsApp.current.examDate
-            ? Math.max(1, Math.ceil((new Date(settingsApp.current.examDate + 'T00:00:00') - todayMidnight) / 86400000))
+            ? Math.max(0, Math.ceil((new Date(settingsApp.current.examDate + 'T00:00:00') - todayMidnight) / 86400000))
             : 180;
-        const totalPrepDays = 180; 
-        const daysElapsed = Math.max(1, totalPrepDays - daysLeft);
+        const totalPrepDays = Math.max(1, daysElapsed + daysLeft);
         const targetMastered = Math.min(totalLeaves, Math.round((totalLeaves / totalPrepDays) * daysElapsed));
         
         const isBehind = masteredLeaves < targetMastered;
@@ -677,6 +539,7 @@ const progressTracker = {
 };
 
 const app = {
+    activeExamId: 'cgl',
     currentExamData: null,
     examTree: null,
     progressData: {},
@@ -690,6 +553,7 @@ const app = {
 
     init: () => {
         settingsApp.init();
+        if (typeof backupApp !== 'undefined') backupApp.init();
         if (typeof mockApp !== 'undefined') mockApp.init();
 
         const examSelector = document.getElementById('exam-selector');
@@ -699,10 +563,19 @@ const app = {
 
         const state = storage.getAppState();
         app.progressData = storage.getProgress() || {};
-        progressTracker.updateHomeUI();
-        app.switchView(state.view || 'home', false);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlView = urlParams.get('view');
+        const validViews = ['home', 'dashboard', 'syllabus', 'timer', 'routine', 'mocks', 'settings'];
+        const initialView = (urlView && validViews.includes(urlView)) ? urlView : (state.view || 'home');
 
         const examId = (state.exam && state.exam !== 'undefined') ? state.exam : 'cgl';
+        app.activeExamId = examId;
+        settingsApp.syncExamProfile(examId);
+
+        progressTracker.updateHomeUI();
+        app.switchView(initialView, false);
+
         if (examSelector) examSelector.value = examId;
         app.loadExam(examId, state.subject);
     },
@@ -721,21 +594,28 @@ const app = {
 
         if (viewId === 'dashboard' && typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
         if (viewId === 'home') progressTracker.updateHomeUI();
-        if (viewId === 'syllabus') app.refreshSyllabusView(); 
+        if (viewId === 'syllabus') syllabusApp.refresh();
+        if (viewId === 'mocks' && typeof mockApp !== 'undefined') mockApp.renderMocks();
+        if (viewId === 'settings' && typeof backupApp !== 'undefined') backupApp.updateUI();
     },
 
     loadExam: async (examId, targetSubjectId = null) => {
         if (!examId || examId === 'undefined') examId = 'cgl';
+        app.activeExamId = examId;
         storage.saveAppState('exam', examId);
+        settingsApp.syncExamProfile(examId);
+
         try {
             let response = await fetch(`data/${examId}.json`);
             if (!response.ok && examId !== 'cgl') {
                 examId = 'cgl';
+                app.activeExamId = 'cgl';
                 storage.saveAppState('exam', 'cgl');
+                settingsApp.syncExamProfile('cgl');
                 response = await fetch(`data/cgl.json`);
             }
             app.currentExamData = await response.json();
-            app.examTree = syllabusEngine.buildTree(app.currentExamData);
+            app.examTree = syllabusEngine.buildTree(app.currentExamData, examId);
 
             if (app.examTree.length > 0) {
                 const subjectExists = targetSubjectId === 'all' || app.examTree.find(s => s.id === targetSubjectId);
@@ -743,9 +623,10 @@ const app = {
             }
             storage.saveAppState('subject', app.activeSubjectId);
 
-            app.refreshSyllabusView();
+            syllabusApp.refresh();
             progressTracker.updateHomeUI();
             if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
+            if (typeof mockApp !== 'undefined') mockApp.renderMocks();
 
         } catch (error) {
             console.error(`Error loading ${examId}.json:`, error);
@@ -755,50 +636,13 @@ const app = {
     switchSubject: (subjectId) => {
         app.activeSubjectId = subjectId;
         storage.saveAppState('subject', subjectId);
-        app.refreshSyllabusView();
+        syllabusApp.refresh();
     },
 
-    refreshSyllabusView: () => {
-        if (typeof ui === 'undefined') return;
-        ui.renderSubjectDropdown(app.examTree || app.currentExamData, app.activeSubjectId);
-        ui.renderSyllabus(app.examTree || app.currentExamData, app.progressData, app.activeSubjectId);
-    },
-
-    updateTally: (id, type) => {
-        const key = `${id}_${type}`;
-        if (type === 'C') {
-            app.progressData[key] = !app.progressData[key];
-        } else if (type === 'R') {
-            let rLevel = app.progressData[key] || 0;
-            if (rLevel < 4) rLevel++;
-            app.progressData[key] = rLevel;
-            app.progressData[`${id}_R_D`] = storage.getLocalDate();
-        } else {
-            if (!app.progressData[key]) app.progressData[key] = 0;
-            app.progressData[key]++;
-            if (type === 'T' && app.progressData[`${id}_broken`]) {
-                app.progressData[`${id}_broken`] = false;
-            }
-        }
-        storage.saveProgress(app.progressData);
-
-        if (typeof ui !== 'undefined') ui.updateTallyUI(id, type, app.progressData);
-        progressTracker.updateHomeUI();
-        if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
-    },
-
-    decrementTally: (id, type) => {
-        if (type === 'C') return;
-        const key = `${id}_${type}`;
-        if (app.progressData[key] && app.progressData[key] > 0) {
-            app.progressData[key]--;
-            storage.setKey('progress', app.progressData);
-
-            if (typeof ui !== 'undefined') ui.updateTallyUI(id, type, app.progressData);
-            progressTracker.updateHomeUI();
-            if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
-        }
-    }
+    // Safe delegates to syllabusApp
+    refreshSyllabusView: () => syllabusApp.refresh(),
+    updateTally: (id, type) => syllabusApp.updateTally(id, type),
+    decrementTally: (id, type) => syllabusApp.decrementTally(id, type)
 };
 
 document.addEventListener('DOMContentLoaded', () => { app.init(); });

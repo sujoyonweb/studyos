@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target;
 
         if (target.id === 'mobile-overlay') { ui.closeMobileMenu(); return; }
-        // Prevent system confirmation modal from closing without an explicit choice
         if (target.classList.contains('modal-overlay') && target.id !== 'os-modal-overlay') {
             target.classList.remove('active');
             return;
@@ -49,21 +48,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn.id === 'btn-add-mock' || btn.id === 'btn-cancel-mock' || btn.id === 'btn-close-mock-modal') mockApp.toggleForm();
         if (btn.id === 'btn-save-mock') mockApp.saveMock();
 
+        // --- BACKUP & SYNC HUB ROUTES ---
         if (action === 'setting-segment') settingsApp.updateSegment(btn.dataset.key, btn.dataset.value, btn);
-        if (btn.id === 'btn-export-data') settingsApp.exportData();
+        if (btn.id === 'btn-cloud-sync') backupApp.syncWithCloud(false);
+        if (btn.id === 'btn-toggle-cloud-config') backupApp.toggleCloudSetup();
+        if (btn.id === 'btn-save-cloud-config') backupApp.saveCloudSetupFromUI();
+        if (btn.id === 'btn-share-data') backupApp.shareBackupFile();
+        if (btn.id === 'btn-copy-code') backupApp.copySyncCode();
+        if (btn.id === 'btn-paste-code') backupApp.pasteSyncCode();
+        if (btn.id === 'btn-export-data') backupApp.exportData();
         if (btn.id === 'btn-import-trigger') document.getElementById('import-file').click();
         if (btn.id === 'btn-clear-data') settingsApp.clearAllData();
 
-        if (target.closest('.select-trigger')) ui.toggleDropdown();
-        if (action === 'select-subject') { app.switchSubject(btn.dataset.id); ui.toggleDropdown(); }
-        if (action === 'toggle-accordion') ui.toggleAccordion(btn.dataset.id);
+        // --- SYLLABUS ROUTES ---
+        if (target.closest('.select-trigger')) syllabusApp.toggleDropdown();
+        if (action === 'select-subject') { app.switchSubject(btn.dataset.id); syllabusApp.toggleDropdown(); }
+        if (action === 'toggle-accordion') syllabusApp.toggleAccordion(btn.dataset.id);
+        if (btn.id === 'btn-add-subject') syllabusApp.openAddModal();
+        if (btn.id === 'btn-close-cs-modal') document.getElementById('syllabus-add-modal')?.classList.remove('active');
+        if (btn.id === 'btn-save-cs-modal') syllabusApp.saveCustomTopic();
 
         if (action === 'tally') {
             if (btn.dataset.longPressTriggered === 'true') {
                 delete btn.dataset.longPressTriggered;
                 return;
             }
-            app.updateTally(btn.dataset.id, btn.dataset.type);
+            syllabusApp.updateTally(btn.dataset.id, btn.dataset.type);
         }
     });
 
@@ -71,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.target.closest('button');
         if (btn && btn.dataset.action === 'tally' && btn.dataset.type !== 'C') {
             e.preventDefault();
-            app.decrementTally(btn.dataset.id, btn.dataset.type);
+            syllabusApp.decrementTally(btn.dataset.id, btn.dataset.type);
         }
     });
 
@@ -86,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (activeTouchBtn) {
                     activeTouchBtn.dataset.longPressTriggered = 'true';
                     if (navigator.vibrate) navigator.vibrate(40);
-                    app.decrementTally(activeTouchBtn.dataset.id, activeTouchBtn.dataset.type);
+                    syllabusApp.decrementTally(activeTouchBtn.dataset.id, activeTouchBtn.dataset.type);
                 }
             }, 500);
         }
@@ -99,15 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target;
         if (target.id === 'exam-selector') app.loadExam(target.value, null);
         if (target.id === 'mock-filter') mockApp.renderMocks(target.value);
-        if (target.id === 'import-file') settingsApp.importData(e);
-        if (target.id === 'toggle-hide-mastered') app.refreshSyllabusView();
+        if (target.id === 'import-file') backupApp.importData(e);
+        if (target.id === 'toggle-hide-mastered') syllabusApp.refresh();
         if (target.id === 'setting-goal') settingsApp.update('dailyGoal', Math.max(0.5, parseFloat(target.value) || 8));
         if (target.id === 'setting-sound') settingsApp.update('soundEffects', target.checked);
         if (target.id === 'setting-awake') settingsApp.update('keepAwake', target.checked);
     });
 
     document.addEventListener('input', (e) => {
-        if (e.target.id === 'syllabus-search') app.refreshSyllabusView();
+        if (e.target.id === 'syllabus-search') syllabusApp.refresh();
     });
 
     document.addEventListener('focusout', (e) => {
@@ -134,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             syncDropzone.classList.remove('drag-over');
             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                settingsApp.importData(e.dataTransfer.files[0]);
+                backupApp.importData(e.dataTransfer.files[0]);
             }
         });
     }

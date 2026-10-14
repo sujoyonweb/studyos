@@ -28,14 +28,14 @@
       "name": "Dashboard",
       "short_name": "Stats",
       "description": "View your daily prep analytics",
-      "url": "/index.html?view=dashboard",
+      "url": "./index.html?view=dashboard",
       "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Log Mock Test",
       "short_name": "Log Test",
       "description": "Enter new mock test scores",
-      "url": "/index.html?view=mocks",
+      "url": "./index.html?view=mocks",
       "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
     }
   ]
