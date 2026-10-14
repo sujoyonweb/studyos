@@ -8,21 +8,29 @@ const mockApp = {
     searchQuery: '',
     filterType: 'all',
 
+    escapeHTML: (str = '') => String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[m])),
+
     init: () => {
         mockApp.data = storage.getKey('mocks', []);
-        const today = new Date().toISOString().split('T')[0];
+        const today = storage.getLocalDate();
         const dateInput = document.getElementById('mock-date');
-        if(dateInput) dateInput.value = today;
+        if (dateInput) dateInput.value = today;
 
         mockApp.renderMocks();
 
         // Feed Action Delegation (Edit, Delete, Load More, Quick Add)
         document.getElementById('mock-feed-container')?.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
-            if(!btn) return;
-            if(btn.dataset.action === 'edit-mock') mockApp.editMock(btn.dataset.id);
-            if(btn.dataset.action === 'delete-mock') mockApp.deleteMock(btn.dataset.id);
-            if(btn.dataset.action === 'load-more') {
+            if (!btn) return;
+            if (btn.dataset.action === 'edit-mock') mockApp.editMock(btn.dataset.id);
+            if (btn.dataset.action === 'delete-mock') mockApp.deleteMock(btn.dataset.id);
+            if (btn.dataset.action === 'load-more') {
                 mockApp.visibleCount += 10;
                 mockApp.renderMocks(); 
             }
@@ -39,8 +47,13 @@ const mockApp = {
     toggleForm: () => {
         const overlay = document.getElementById('mock-modal-overlay');
         overlay.classList.toggle('active');
-        if (!overlay.classList.contains('active') && mockApp.editingId) mockApp.resetForm(); 
-        else if (overlay.classList.contains('active')) {
+        if (!overlay.classList.contains('active') && mockApp.editingId) {
+            mockApp.resetForm(); 
+        } else if (overlay.classList.contains('active')) {
+            if (!mockApp.editingId) {
+                const dateInput = document.getElementById('mock-date');
+                if (dateInput && !dateInput.value) dateInput.value = storage.getLocalDate();
+            }
             document.getElementById('mock-modal-title').innerText = mockApp.editingId ? 'Edit Test' : 'Log New Test';
             document.getElementById('btn-save-mock').innerText = mockApp.editingId ? 'Update Test' : 'Save Test';
         }
@@ -55,7 +68,7 @@ const mockApp = {
         document.getElementById('mock-date').value = mock.date;
         document.getElementById('mock-score').value = mock.score;
         document.getElementById('mock-total').value = mock.total;
-        document.getElementById('mock-percentile').value = mock.percentile || '';
+        document.getElementById('mock-percentile').value = mock.percentile ?? '';
         document.getElementById('mock-hardQs').value = mock.hardQs || '';
         document.getElementById('mock-notes').value = mock.notes || '';
         mockApp.toggleForm();
@@ -64,6 +77,7 @@ const mockApp = {
     resetForm: () => {
         mockApp.editingId = null;
         document.getElementById('mock-name').value = '';
+        document.getElementById('mock-date').value = storage.getLocalDate();
         document.getElementById('mock-score').value = '';
         document.getElementById('mock-percentile').value = '';
         document.getElementById('mock-hardQs').value = '';
@@ -73,7 +87,7 @@ const mockApp = {
     saveMock: () => {
         const name = document.getElementById('mock-name').value.trim();
         const type = document.getElementById('mock-type').value;
-        const date = document.getElementById('mock-date').value;
+        const date = document.getElementById('mock-date').value || storage.getLocalDate();
         const score = parseFloat(document.getElementById('mock-score').value);
         const total = parseFloat(document.getElementById('mock-total').value);
         const percentileStr = document.getElementById('mock-percentile').value;
@@ -83,7 +97,16 @@ const mockApp = {
         if (score > total) return ui.alert(`Score (${score}) cannot be greater than the Total marks (${total}).`);
         if (percentile !== null && (percentile > 100 || percentile < 0)) return ui.alert("Percentile must be between 0 and 100.");
         
-        const mockPayload = { name, type, date, score, total, percentile, hardQs: document.getElementById('mock-hardQs').value.trim(), notes: document.getElementById('mock-notes').value.trim() };
+        const mockPayload = {
+            name,
+            type,
+            date,
+            score,
+            total,
+            percentile,
+            hardQs: document.getElementById('mock-hardQs').value.trim(),
+            notes: document.getElementById('mock-notes').value.trim()
+        };
 
         if (mockApp.editingId) {
             const index = mockApp.data.findIndex(m => m.id === mockApp.editingId);
@@ -97,6 +120,9 @@ const mockApp = {
         mockApp.resetForm();
         document.getElementById('mock-modal-overlay').classList.remove('active');
         mockApp.renderMocks();
+
+        if (typeof progressTracker !== 'undefined') progressTracker.updateHomeUI();
+        if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
     },
 
     deleteMock: (id) => {
@@ -104,6 +130,9 @@ const mockApp = {
             mockApp.data = mockApp.data.filter(mock => mock.id !== id);
             storage.setKey('mocks', mockApp.data);
             mockApp.renderMocks();
+
+            if (typeof progressTracker !== 'undefined') progressTracker.updateHomeUI();
+            if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
         }, true);
     },
 
@@ -122,7 +151,7 @@ const mockApp = {
         if (mockApp.filterType !== 'all') filteredData = filteredData.filter(mock => mock.type === mockApp.filterType);
         if (mockApp.searchQuery) filteredData = filteredData.filter(mock => mock.name.toLowerCase().includes(mockApp.searchQuery));
 
-        mockApp.renderTrendGraph(filteredData); // Draw Graph
+        mockApp.renderTrendGraph(filteredData);
 
         if (filteredData.length === 0) {
             container.innerHTML = `<div class="empty-state-card">No tests found for this filter.</div>`;
@@ -141,10 +170,12 @@ const mockApp = {
             else if (mock.percentile >= 75) percColor = 'var(--warning)';
             else if (mock.percentile < 75) percColor = 'var(--danger)';
 
-            const percHTML = mock.percentile ? `<div class="mock-percentile-pill" style="color: ${percColor}; border-color: ${percColor};">${mock.percentile}%ile</div>` : '';
+            const percHTML = mock.percentile !== null && mock.percentile !== undefined && mock.percentile !== ''
+                ? `<div class="mock-percentile-pill" style="color: ${percColor}; border-color: ${percColor};">${mock.percentile}%ile</div>`
+                : '';
 
-            const hardQsHTML = mock.hardQs ? `<div class="mock-block"><div class="mock-block-label">Hard Questions</div><div class="mock-block-text">${mock.hardQs}</div></div>` : '';
-            const notesHTML = mock.notes ? `<div class="mock-block"><div class="mock-block-label">Takeaways</div><div class="mock-block-text">${mock.notes}</div></div>` : '';
+            const hardQsHTML = mock.hardQs ? `<div class="mock-block"><div class="mock-block-label">Hard Questions</div><div class="mock-block-text">${mockApp.escapeHTML(mock.hardQs)}</div></div>` : '';
+            const notesHTML = mock.notes ? `<div class="mock-block"><div class="mock-block-label">Takeaways</div><div class="mock-block-text">${mockApp.escapeHTML(mock.notes)}</div></div>` : '';
             
             const contentWrapper = (hardQsHTML || notesHTML) ? `<div class="mock-content-wrapper">${hardQsHTML}${notesHTML}</div>` : '';
             
@@ -162,9 +193,9 @@ const mockApp = {
                         <div class="mock-meta-group">
                             <div class="mock-meta-tags">
                                 <span class="badge ${badgeClass}">${typeLabel}</span>
-                                <span class="mock-date">${mock.date}</span>
+                                <span class="mock-date">${mockApp.escapeHTML(mock.date)}</span>
                             </div>
-                            <h3 class="mock-title">${mock.name}</h3>
+                            <h3 class="mock-title">${mockApp.escapeHTML(mock.name)}</h3>
                         </div>
                         <div class="mock-score-group">
                             <div class="mock-actions">
@@ -223,9 +254,8 @@ const mockApp = {
             polylinePoints += `${x},${y} `;
             circlesHTML += `
                 <g class="trend-node">
-                    <!-- Changed stroke to bright blue -->
                     <circle cx="${x}" cy="${y}" r="4" fill="var(--bg-surface)" stroke="#3b82f6" stroke-width="2" />
-                    <title>${test.name}&#10;Score: ${test.score} | Date: ${test.date}</title>
+                    <title>${mockApp.escapeHTML(test.name)}&#10;Score: ${test.score} | Date: ${mockApp.escapeHTML(test.date)}</title>
                 </g>
             `;
         });
@@ -234,7 +264,6 @@ const mockApp = {
             <div class="trend-header">SCORE TREND (LAST ${graphData.length})</div>
             <svg viewBox="0 0 ${width} ${height}" class="trend-svg" preserveAspectRatio="none">
                 <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border-light)" stroke-dasharray="4 4" />
-                <!-- Changed stroke to bright blue -->
                 <polyline points="${polylinePoints}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 ${circlesHTML}
             </svg>

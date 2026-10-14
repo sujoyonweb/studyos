@@ -7,7 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target;
 
         if (target.id === 'mobile-overlay') { ui.closeMobileMenu(); return; }
-        if (target.classList.contains('modal-overlay')) { target.classList.remove('active'); return; }
+        // Prevent system confirmation modal from closing without an explicit choice
+        if (target.classList.contains('modal-overlay') && target.id !== 'os-modal-overlay') {
+            target.classList.remove('active');
+            return;
+        }
 
         const btn = target.closest('button') || target.closest('.select-trigger') || target.closest('.select-option') || target.closest('.topic-header') || target.closest('[data-action]');
         if (!btn) return;
@@ -65,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('contextmenu', (e) => {
         const btn = e.target.closest('button');
-        if (btn && btn.dataset.action === 'tally') {
+        if (btn && btn.dataset.action === 'tally' && btn.dataset.type !== 'C') {
             e.preventDefault();
             app.decrementTally(btn.dataset.id, btn.dataset.type);
         }
@@ -97,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.id === 'mock-filter') mockApp.renderMocks(target.value);
         if (target.id === 'import-file') settingsApp.importData(e);
         if (target.id === 'toggle-hide-mastered') app.refreshSyllabusView();
-        if (target.id === 'setting-goal') settingsApp.update('dailyGoal', target.value);
+        if (target.id === 'setting-goal') settingsApp.update('dailyGoal', Math.max(0.5, parseFloat(target.value) || 8));
         if (target.id === 'setting-sound') settingsApp.update('soundEffects', target.checked);
         if (target.id === 'setting-awake') settingsApp.update('keepAwake', target.checked);
     });
@@ -130,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             syncDropzone.classList.remove('drag-over');
             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                // Pass the raw file directly to the settings engine
                 settingsApp.importData(e.dataTransfer.files[0]);
             }
         });

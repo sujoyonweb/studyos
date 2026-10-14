@@ -59,6 +59,7 @@ const syllabusEngine = {
             const hasC = pData[`${node.id}_C`] || (node.legacyId && pData[`${node.legacyId}_C`]);
             const qCount = pData[`${node.id}_Q`] || (node.legacyId && pData[`${node.legacyId}_Q`]) || 0;
             const rLevel = pData[`${node.id}_R`] || (node.legacyId && pData[`${node.legacyId}_R`]) || 0;
+            const rDateStr = pData[`${node.id}_R_D`];
             const tCount = pData[`${node.id}_T`] || (node.legacyId && pData[`${node.legacyId}_T`]) || 0;
 
             if (hasC) { stats.c = 1; stats.pts += 1; }
@@ -67,7 +68,20 @@ const syllabusEngine = {
             if (rLevel > 0) { stats.r = 1; }
             if (hasC && qCount > 0 && tCount > 0) stats.mastered = 1;
 
-            if (hasC && rLevel === 0) stats.debtNodes.push({ name: node.name, id: node.id });
+            if (hasC) {
+                let isDebt = false;
+                if (rLevel === 0 || pData[`${node.id}_broken`]) {
+                    isDebt = true;
+                } else if (rDateStr) {
+                    const todayMidnight = new Date();
+                    todayMidnight.setHours(0, 0, 0, 0);
+                    const daysSince = Math.floor((todayMidnight - new Date(rDateStr + 'T00:00:00')) / 86400000);
+                    if ((rLevel === 1 && daysSince >= 7) || (rLevel === 2 && daysSince >= 21) || (rLevel >= 3 && daysSince >= 45)) {
+                        isDebt = true;
+                    }
+                }
+                if (isDebt) stats.debtNodes.push({ name: node.name, id: node.id });
+            }
         } else if (node.children) {
             node.children.forEach(c => {
                 const cStats = syllabusEngine.getStats(c, pData);
@@ -146,7 +160,7 @@ const settingsApp = {
             if (lastSync === 'Never') elLastExport.innerText = lastSync;
             else {
                 const d = new Date(lastSync);
-                elLastExport.innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                elLastExport.innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
         }
         if (elRecordCount) elRecordCount.innerText = `${count} Keys`;
@@ -178,7 +192,6 @@ const settingsApp = {
     },
 
     importData: (eventOrFile) => {
-        // Detect if it's an event (button click) or a raw file (drag and drop)
         const file = eventOrFile.target ? eventOrFile.target.files[0] : eventOrFile;
         if (!file) return;
         
@@ -189,8 +202,9 @@ const settingsApp = {
             try {
                 const importedJSON = JSON.parse(e.target.result);
                 const sourceData = importedJSON.data || importedJSON; 
+                if (!sourceData || typeof sourceData !== 'object') throw new Error("Invalid format");
                 
-                // CREATE SAFETY SNAPSHOT
+                // 1. CREATE SAFETY SNAPSHOT
                 const snapshot = {};
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
@@ -198,37 +212,47 @@ const settingsApp = {
                 }
                 sessionStorage.setItem('studyOS_snapshot', JSON.stringify(snapshot));
 
-                // APPLY DATA
+                // 2. APPLY DATA
                 if (mode === 'mirror') {
                     Object.keys(localStorage).forEach(k => { if (k.startsWith('studyOS_')) localStorage.removeItem(k); });
                     Object.entries(sourceData).forEach(([k, v]) => storage.setKey(k, v));
                 } else {
                     Object.entries(sourceData).forEach(([k, impVal]) => {
+                        if (impVal === null || impVal === undefined) return;
                         const localVal = storage.getKey(k);
                         
-                        if (k === 'progress') {
-                            const newProg = { ...localVal };
+                        if (k === 'progress' && typeof impVal === 'object') {
+                            const newProg = { ...(localVal || {}) };
                             Object.keys(impVal).forEach(pk => {
-                                if (typeof impVal[pk] === 'number') newProg[pk] = Math.max(newProg[pk] || 0, impVal[pk]);
-                                else if (typeof impVal[pk] === 'boolean') newProg[pk] = newProg[pk] || impVal[pk];
-                                else if (typeof impVal[pk] === 'string') {
+                                if (pk.endsWith('_broken')) {
+                                    const baseId = pk.slice(0, -7);
+                                    const tVal = Math.max(newProg[`${baseId}_T`] || 0, impVal[`${baseId}_T`] || 0);
+                                    newProg[pk] = tVal > 0 ? false : Boolean(newProg[pk] || impVal[pk]);
+                                } else if (typeof impVal[pk] === 'number') {
+                                    newProg[pk] = Math.max(newProg[pk] || 0, impVal[pk]);
+                                } else if (typeof impVal[pk] === 'boolean') {
+                                    newProg[pk] = Boolean(newProg[pk] || impVal[pk]);
+                                } else if (typeof impVal[pk] === 'string') {
                                     if (!newProg[pk] || new Date(impVal[pk]) > new Date(newProg[pk])) newProg[pk] = impVal[pk];
                                 }
                             });
                             storage.setKey(k, newProg);
                         } 
-                        else if (k === 'timeLogs') {
-                            const newLogs = { ...localVal };
+                        else if (k === 'timeLogs' && typeof impVal === 'object') {
+                            const newLogs = { ...(localVal || {}) };
                             Object.keys(impVal).forEach(date => newLogs[date] = Math.max(newLogs[date] || 0, impVal[date]));
                             storage.setKey(k, newLogs);
                         } 
-                        else if (k === 'mocks' || k === 'routine') {
-                            const mergedArr = localVal ? [...localVal] : [];
+                        else if ((k === 'mocks' || k === 'routine') && Array.isArray(impVal)) {
+                            const mergedArr = Array.isArray(localVal) ? [...localVal] : [];
                             impVal.forEach(impItem => {
+                                if (!impItem || !impItem.id) return;
                                 const idx = mergedArr.findIndex(m => m.id === impItem.id);
                                 if (idx === -1) mergedArr.push(impItem);
                                 else mergedArr[idx] = { ...mergedArr[idx], ...impItem }; 
                             });
+                            if (k === 'mocks') mergedArr.sort((a, b) => (parseInt(b.id) || 0) - (parseInt(a.id) || 0));
+                            if (k === 'routine') mergedArr.sort((a, b) => (a.rawMins || 0) - (b.rawMins || 0));
                             storage.setKey(k, mergedArr);
                         } 
                         else {
@@ -237,7 +261,14 @@ const settingsApp = {
                     });
                 }
 
-                // SUCCESS ALERT WITH UNDO BUTTON
+                // Reset input so re-selecting the same file triggers change event
+                if (eventOrFile.target) eventOrFile.target.value = '';
+
+                // Sync in-memory state immediately
+                app.progressData = storage.getProgress() || {};
+                settingsApp.updateSyncUI();
+
+                // 3. SUCCESS ALERT WITH UNDO BUTTON
                 ui.confirm(
                     "Sync Complete! Do you want to apply these changes or undo?", 
                     () => { window.location.reload(); }, 
@@ -247,6 +278,7 @@ const settingsApp = {
                 );
 
             } catch (err) {
+                if (eventOrFile.target) eventOrFile.target.value = '';
                 ui.alert("Invalid or corrupted backup file.");
                 console.error(err);
             }
@@ -287,36 +319,68 @@ const progressTracker = {
 
     getLogs: () => storage.getKey('timeLogs', {}),
 
-    // UPGRADE: THE MOCK ILLUSION DETECTOR
+    addMinutes: (mins) => {
+        if (!mins || mins <= 0) return;
+        const logs = progressTracker.getLogs();
+        const today = storage.getLocalDate();
+        logs[today] = (logs[today] || 0) + mins;
+        storage.setKey('timeLogs', logs);
+        progressTracker.updateHomeUI();
+        if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
+    },
+
+    // UPGRADE: SMART MOCK ILLUSION DETECTOR (Word-Boundary + Timestamped Rehab)
     detectIllusions: (examTree, progressData) => {
         const mocks = storage.getKey('mocks', []);
         let brokenNodes = [];
         if (!examTree || mocks.length === 0) return brokenNodes;
-        
+
+        const getMatchPatterns = (rawName) => {
+            const cleaned = rawName.toLowerCase()
+                .replace(/\(.*?\)/g, '')
+                .replace(/\bpt\.?\s*\d+/g, '')
+                .replace(/\b(all|question|2025|problems on|basics of)\b/g, '')
+                .trim();
+
+            const parts = cleaned.split(/[,:&/]+/).map(s => s.trim()).filter(s => s.length >= 4);
+            if (parts.length === 0 && cleaned.length >= 3) parts.push(cleaned);
+
+            return parts.map(part => {
+                const escaped = part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+                return new RegExp(`\\b${escaped}\\b`, 'i');
+            });
+        };
+
         const traverse = (node, subjName, subjId) => {
             if (node.type === 'leaf') {
-                const nameLower = node.name.toLowerCase();
-                if (nameLower.length > 3) {
+                const patterns = getMatchPatterns(node.name);
+                if (patterns.length > 0) {
+                    const lastRehabTime = progressData[`${node.id}_rehabTime`] || 0;
                     let strikes = 0;
+
                     mocks.forEach(m => {
-                        const mText = `${m.hardQs || ''} ${m.notes || ''}`.toLowerCase();
-                        if (mText.includes(nameLower)) strikes++;
+                        const mockTime = parseInt(m.id) || 0;
+                        if (mockTime > lastRehabTime) {
+                            const mText = `${m.hardQs || ''} ${m.notes || ''}`;
+                            if (patterns.some(regex => regex.test(mText))) {
+                                strikes++;
+                            }
+                        }
                     });
 
-                    // THE TWO STRIKE PENALTY
                     if (strikes >= 2) {
-                        const hasQ = progressData[`${node.id}_Q`] > 0;
-                        const hasT = progressData[`${node.id}_T`] > 0;
-                        
-                        if (hasQ || hasT) {
-                            progressData[`${node.id}_Q`] = 0;
-                            progressData[`${node.id}_T`] = 0;
-                            progressData[`${node.id}_broken`] = true;
+                        progressData[`${node.id}_Q`] = 0;
+                        progressData[`${node.id}_T`] = 0;
+                        progressData[`${node.id}_broken`] = true;
+                        progressData[`${node.id}_rehabTime`] = Date.now();
+                        storage.setKey('progress', progressData);
+                    }
+
+                    if (progressData[`${node.id}_broken`]) {
+                        if (progressData[`${node.id}_T`] > 0) {
+                            progressData[`${node.id}_broken`] = false;
                             storage.setKey('progress', progressData);
-                        }
-                        
-                        // If it has been marked broken and hasn't been fixed (T restored)
-                        if (progressData[`${node.id}_broken`] && !(progressData[`${node.id}_T`] > 0)) {
+                        } else {
                             brokenNodes.push({ name: node.name, subj: subjName, id: subjId });
                         }
                     }
@@ -325,6 +389,7 @@ const progressTracker = {
                 node.children.forEach(c => traverse(c, subjName, subjId));
             }
         };
+
         examTree.forEach(subj => subj.tree.forEach(t => traverse(t, subj.name, subj.id)));
         return brokenNodes;
     },
@@ -358,9 +423,10 @@ const progressTracker = {
 
         const homeCountdown = document.getElementById('home-countdown');
         if (homeCountdown && settingsApp.current.examDate) {
-            const dDay = new Date(settingsApp.current.examDate);
-            const todayDate = new Date(); todayDate.setHours(0,0,0,0);
-            const daysLeft = Math.ceil((dDay.getTime() - todayDate.getTime()) / (1000 * 60 * 60 * 24));
+            const dDay = new Date(settingsApp.current.examDate + 'T00:00:00');
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            const daysLeft = Math.ceil((dDay.getTime() - todayDate.getTime()) / 86400000);
             homeCountdown.innerHTML = daysLeft < 0 ? "0" : daysLeft;
         }
 
@@ -368,10 +434,10 @@ const progressTracker = {
         progressTracker.renderFocusTasks();
         progressTracker.renderScheduleQueue(); 
         progressTracker.renderSyllabusActions();
-        progressTracker.renderVelocityChart(); // UPGRADE: BURN-DOWN INJECTION
+        progressTracker.renderVelocityChart();
     },
 
-    // UPGRADE: VELOCITY BURN-DOWN CHART
+    // UPGRADE: VELOCITY BURN-DOWN CHART + QUICK LOG BUTTON
     renderVelocityChart: () => {
         const velocityCard = document.querySelector('.quick-start-card');
         if (!velocityCard) return;
@@ -389,19 +455,23 @@ const progressTracker = {
             }
         };
         if (app.examTree) app.examTree.forEach(subj => subj.tree.forEach(traverse));
-        if (totalLeaves === 0) totalLeaves = 1; // Prevent division by zero
+        if (totalLeaves === 0) totalLeaves = 1;
         
-        const daysLeft = settingsApp.current.examDate ? Math.max(1, Math.ceil((new Date(settingsApp.current.examDate) - new Date()) / (1000 * 60 * 60 * 24))) : 180;
+        const todayMidnight = new Date();
+        todayMidnight.setHours(0, 0, 0, 0);
+        const daysLeft = settingsApp.current.examDate
+            ? Math.max(1, Math.ceil((new Date(settingsApp.current.examDate + 'T00:00:00') - todayMidnight) / 86400000))
+            : 180;
         const totalPrepDays = 180; 
         const daysElapsed = Math.max(1, totalPrepDays - daysLeft);
-        const targetMastered = Math.round((totalLeaves / totalPrepDays) * daysElapsed);
+        const targetMastered = Math.min(totalLeaves, Math.round((totalLeaves / totalPrepDays) * daysElapsed));
         
         const isBehind = masteredLeaves < targetMastered;
         const chartColor = isBehind ? 'var(--danger)' : 'var(--success)';
         const statusText = isBehind ? 'Falling Behind' : 'Pace: Optimal';
         
         velocityCard.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <div class="quick-start-label m-0" style="color: var(--text-main); font-weight: 800; font-size: 1rem;">Velocity Tracker</div>
                 <div class="badge ${isBehind ? 'rev' : 'pin'}" style="${isBehind ? 'background:rgba(239,68,68,0.15);color:var(--danger);' : 'background:rgba(16,185,129,0.15);color:var(--success);'}">${statusText}</div>
             </div>
@@ -410,7 +480,7 @@ const progressTracker = {
                 <span class="text-muted">Target Trajectory</span>
                 <span style="color: var(--text-muted);">${targetMastered} topics</span>
             </div>
-            <div style="width: 100%; height: 8px; background: var(--bg-hover); border-radius: 4px; margin-bottom: 1.5rem; overflow: hidden;">
+            <div style="width: 100%; height: 8px; background: var(--bg-hover); border-radius: 4px; margin-bottom: 1.25rem; overflow: hidden;">
                 <div style="width: ${Math.min(100, (targetMastered/totalLeaves)*100)}%; height: 100%; background: var(--text-muted); opacity: 0.4;"></div>
             </div>
 
@@ -418,9 +488,10 @@ const progressTracker = {
                 <span class="text-muted">Actual Progress</span>
                 <span style="color: ${chartColor};">${masteredLeaves} topics</span>
             </div>
-            <div style="width: 100%; height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; margin-bottom: 1rem;">
+            <div style="width: 100%; height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem;">
                 <div style="width: ${Math.min(100, (masteredLeaves/totalLeaves)*100)}%; height: 100%; background: ${chartColor}; box-shadow: 0 0 10px ${chartColor}; transition: width 1s ease;"></div>
             </div>
+            <button id="btn-quick-start" class="quick-start-btn">+ Log Study Time</button>
         `;
         velocityCard.style.padding = '1.75rem';
         velocityCard.style.textAlign = 'left';
@@ -520,14 +591,15 @@ const progressTracker = {
         let dueQueue = [];
         let maintenanceQueue = [];
 
-        // UPGRADE: FETCH REHAB/BROKEN TOPICS
         const brokenConcepts = progressTracker.detectIllusions(app.examTree, app.progressData);
         brokenConcepts.forEach(b => {
             dueQueue.push({ badge: 'Concept Broken', label: 'Rehab Required (Failed 2+ Mocks)', subject: b.subj, topic: b.name, subjId: b.id, isBroken: true });
         });
 
-        // UPGRADE: MULTI-STAGE DECAY QUEUE LOGIC
         if (app.examTree) {
+            const todayMidnight = new Date();
+            todayMidnight.setHours(0, 0, 0, 0);
+
             const traverse = (node, subjName, subjId) => {
                 const p = app.progressData || {};
                 if (node.type === 'leaf') {
@@ -539,7 +611,7 @@ const progressTracker = {
                         if (rLevel === 0) {
                             dueQueue.push({ badge: 'Due: R1', label: 'Initial Revision', subject: subjName, topic: node.name, subjId });
                         } else if (rDateStr) {
-                            const daysSince = Math.floor((new Date() - new Date(rDateStr)) / (1000 * 60 * 60 * 24));
+                            const daysSince = Math.floor((todayMidnight - new Date(rDateStr + 'T00:00:00')) / 86400000);
                             if (rLevel === 1 && daysSince >= 7) dueQueue.push({ badge: 'Due: R2', label: '7-Day Review', subject: subjName, topic: node.name, subjId });
                             else if (rLevel === 2 && daysSince >= 21) dueQueue.push({ badge: 'Due: R3', label: '21-Day Review', subject: subjName, topic: node.name, subjId });
                             else if (rLevel >= 3 && daysSince >= 45) maintenanceQueue.push({ badge: 'Keep Fresh', label: '45-Day Maintenance Loop', subject: subjName, topic: node.name, subjId });
@@ -552,7 +624,6 @@ const progressTracker = {
             app.examTree.forEach(subj => subj.tree.forEach(t => traverse(t, subj.name, subj.id)));
         }
 
-        // Combine queues: Rehab > R1-R3 > Maintenance (Throttled to 3 per day)
         dueQueue = dueQueue.concat(maintenanceQueue.slice(0, 3));
 
         if (dueQueue.length > 0) {
@@ -693,7 +764,6 @@ const app = {
         ui.renderSyllabus(app.examTree || app.currentExamData, app.progressData, app.activeSubjectId);
     },
 
-    // UPGRADE: MULTI-STAGE DECAY ENGINE
     updateTally: (id, type) => {
         const key = `${id}_${type}`;
         if (type === 'C') {
@@ -702,11 +772,10 @@ const app = {
             let rLevel = app.progressData[key] || 0;
             if (rLevel < 4) rLevel++;
             app.progressData[key] = rLevel;
-            app.progressData[`${id}_R_D`] = storage.getLocalDate(); // Timestamp the revision
+            app.progressData[`${id}_R_D`] = storage.getLocalDate();
         } else {
             if (!app.progressData[key]) app.progressData[key] = 0;
             app.progressData[key]++;
-            // Clear broken status if T is fully restored
             if (type === 'T' && app.progressData[`${id}_broken`]) {
                 app.progressData[`${id}_broken`] = false;
             }
@@ -719,6 +788,7 @@ const app = {
     },
 
     decrementTally: (id, type) => {
+        if (type === 'C') return;
         const key = `${id}_${type}`;
         if (app.progressData[key] && app.progressData[key] > 0) {
             app.progressData[key]--;

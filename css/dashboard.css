@@ -56,3 +56,93 @@
 @media (max-width: 768px) {
     .dash-top-grid, .dash-mid-grid, .dash-bottom-grid { grid-template-columns: 1fr; }
 }
+/* --- Upgraded Subject Breakdown UI --- */
+.subject-breakdown-list {
+    gap: 0.75rem;
+}
+
+.subj-breakdown-item {
+    padding: 0.7rem 0.85rem;
+    background-color: var(--bg-hover);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.subj-breakdown-item:hover {
+    border-color: var(--border-light);
+    transform: translateX(2px);
+}
+
+.subj-breakdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.subj-breakdown-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.subj-breakdown-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.subj-breakdown-count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-main);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.45rem;
+    border-radius: 2rem;
+}
+
+.subj-breakdown-count span {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.subj-breakdown-pct {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--brand-accent);
+    min-width: 2.4rem;
+    text-align: right;
+}
+
+.subj-breakdown-pct.is-complete {
+    color: var(--success);
+}
+
+.dash-mini-progress {
+    width: 100%;
+    height: 6px;
+    background-color: var(--bg-surface);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.dash-mini-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand-accent), var(--purple));
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dash-mini-progress-bar.is-complete {
+    background: var(--success);
+}

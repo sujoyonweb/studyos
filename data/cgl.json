@@ -7,6 +7,7 @@
         {
           "name": "Unit 1: Arithmetic",
           "chapters": [
+            "Calculation Booster",
             "Percentage",
             "Ratio & Proportion",
             "Simple Interest",
@@ -14,6 +15,9 @@
             "Installment",
             "Profit and Loss",
             "Discount",
+            "Average",
+            "Weighted Avg",
+            "Mixture & Alligation",
             "Time and Work",
             "Pipe & Cistern",
             "Time & Distance",
@@ -28,9 +32,9 @@
           "chapters": [
             "Number System",
             "HCF & LCM",
-            "Average & Weighted Average",
-            "Mixture & Alligation",
-            "Algebra & Linear Equations",
+            "Data Interpretation",
+            "Algebra",
+            "Equations",
             "Surds and Indices",
             "Simplification",
             {
@@ -43,44 +47,21 @@
                 "Quadrilaterals & Regular Polygons"
               ]
             },
-            {
-              "name": "Mensuration 2D & 3D",
-              "topics": [
-                "2D Figures: Triangle, Quadrilateral & Circle Area/Perimeter",
-                "3D Prisms & Pyramids",
-                "Right Circular Cylinder & Cone",
-                "Sphere & Hemispheres",
-                "Frustum & Composite Solids"
-              ]
-            },
+            "Mensuration 2D",
+            "Mensuration 3D",
             {
               "name": "Trigonometry",
               "topics": [
                 "Trigonometric Ratios & Standard Identities",
-                "Complementary Angles & Maximum/Minimum Values",
-                "Heights and Distances"
+                "Complementary Angles & Maximum/Minimum Values"
               ]
             },
+            "Height & Distance",
             "Coordinate Geometry",
-            {
-              "name": "Data Interpretation",
-              "topics": [
-                "Histograms & Frequency Polygons",
-                "Bar Diagrams & Column Charts",
-                "Pie Charts & Tabular DI"
-              ]
-            },
-            {
-              "name": "Statistics (Tier-II)",
-              "topics": [
-                "Measures of Central Tendency (Mean, Median, Mode)",
-                "Partition Values (Quartiles, Deciles, Percentiles)",
-                "Standard Deviation & Variance"
-              ]
-            },
-            "Probability (Tier-II)",
-            "AP, GP & HP Progressions",
-            "Permutations & Combinations"
+            "Statistics",
+            "AP, GP, HP Progressions",
+            "Permutation & Combination",
+            "Probability (Mains)"
           ]
         }
       ]
@@ -102,12 +83,12 @@
             "Time & Tense",
             "Conditional Sentences",
             "Question Tags",
-            "Active and Passive Voice",
-            "Direct and Indirect Narration",
+            "Voice",
+            "Narration",
             "Articles",
             "Subject-Verb Agreement",
-            "Superfluous Expressions",
-            "Basics of English & Sentence Types",
+            "Superfluous Error",
+            "Basics of English",
             "Transformation of Sentences",
             "Punctuation",
             "Cloze Test"
@@ -119,7 +100,7 @@
             "One Word Substitution",
             "Idioms and Phrases",
             "Synonyms & Antonyms",
-            "Spelling Correction & Misspelt Words",
+            "Spelling Correction",
             "Phrasal Verbs",
             "Homonyms & Homophones",
             "Confusing Word Pairs",
@@ -135,13 +116,14 @@
         {
           "name": "Unit 1: Verbal Reasoning",
           "chapters": [
-            "Letter Basics & Alphabet Test",
-            "Coding and Decoding",
-            "Number Series & Alphabetical Series",
+            "Letter Basics",
+            "Alphabet Test",
+            "Coding Decoding",
+            "Series",
             "Alphanumeric Puzzle",
-            "Semantic & Number Analogy",
+            "Analogy",
             "Classification (Odd One Out)",
-            "Direction Sense Test",
+            "Direction Test",
             "Blood Relations",
             "Order and Ranking",
             "Sitting Arrangement",
@@ -156,7 +138,7 @@
             "Character Puzzle & Missing Number",
             "Logical Sequence of Words",
             "Venn Diagrams",
-            "Word Formation & Word Building"
+            "Word Formation"
           ]
         },
         {
@@ -179,7 +161,7 @@
             "Statement & Arguments",
             "Statement & Assumptions",
             "Statement & Conclusions",
-            "Deriving Inferences",
+            "Statement & Inferences",
             "Cause and Effect",
             "Decision Making & Critical Thinking"
           ]
@@ -190,31 +172,42 @@
       "name": "General Awareness",
       "units": [
         {
-          "name": "Unit 1: Indian Polity & Constitution",
+          "name": "Unit 1: Polity",
           "chapters": [
-            "Constitutional Framework & Historical Background",
-            "Preamble, Parts, Schedules & Articles",
-            "Fundamental Rights, Duties & DPSP",
-            "Union Executive (President, PM, Council of Ministers)",
-            "Union Legislature (Parliament: Lok Sabha & Rajya Sabha)",
-            "Judiciary (Supreme Court & High Courts)",
-            "State Executive & Legislature",
-            "Local Self Government (Panchayati Raj & Municipalities)",
-            "Constitutional & Non-Constitutional Bodies (CAG, ECI, UPSC, NITI Aayog)",
-            "Important Amendments & Emergency Provisions"
+            "Making of Constitution",
+            "Salient Features of Constitution",
+            "Preamble",
+            "Part 1 & 2 of Constitution",
+            "Fundamental Rights",
+            "DPSP & Fundamental Duties",
+            "President and Vice President",
+            "PM and CoM",
+            "Parliament pt. 1",
+            "Parliament pt. 2",
+            "State Legislature",
+            "Courts",
+            "Local Bodies",
+            "Constitutional & Non Constitutional",
+            "Emergency, Amendments & Inter State Relations",
+            "Historical Background",
+            "PYQ"
           ]
         },
         {
           "name": "Unit 2: Economics",
           "chapters": [
-            "Microeconomics: Demand, Supply & Market Structures",
+            "Basics of Economics",
+            "Micro-economics",
+            "Inflation & Unemployment",
             "National Income (GDP, GNP, NNP, Per Capita Income)",
-            "Inflation, Deflation & Business Cycles",
-            "Money, Banking & RBI Monetary Policy",
-            "Public Finance, Union Budget & Fiscal Policy",
-            "Taxation Structure in India (Direct/Indirect & GST)",
-            "Five Year Plans & Economic Planning",
-            "Poverty, Unemployment & Flagship Schemes",
+            "National Income MCQ",
+            "Budget and Taxation",
+            "Monetary Policy",
+            "Banking System pt. 1",
+            "Banking System pt. 2",
+            "Balance of Payment",
+            "Poverty",
+            "Five Year Plans",
             "International Financial Organizations (IMF, World Bank, WTO)"
           ]
         },
@@ -222,61 +215,105 @@
           "name": "Unit 3: Geography",
           "chapters": [
             "Universe, Solar System & Earth Movements",
-            "Geomorphology: Lithosphere, Plate Tectonics & Earthquakes",
-            "Climatology: Atmosphere, Winds, Monsoons & Cyclones",
-            "Hydrosphere: Ocean Currents & Tides",
-            "Physiography of India (Himalayas, Plains, Plateaus & Islands)",
-            "Drainage System: Major Rivers, Lakes & Dams of India",
-            "Soils, Agriculture & Major Crops of India",
-            "Forests, Natural Vegetation & Wildlife Reserves",
-            "Mineral & Energy Resources of India",
-            "Transportation Networks (Roads, Railways, Waterways)"
+            "Latitude & Longitude",
+            "Earth's Interior & Plate Tectonics",
+            "Ocean & Continents",
+            "Rocks & Volcano",
+            "Geomorphic Processes",
+            "Landforms",
+            "Atmosphere",
+            "Condensation & Precipitation",
+            "Wind Systems",
+            "Cyclone & Ocean Currents",
+            "India & It's Location",
+            "Himalayas",
+            "Peninsular Plateau",
+            "Plains & Islands",
+            "Himalayan River System",
+            "Peninsular River System",
+            "Dams, Lakes & Waterfalls",
+            "Monsoon",
+            "Monsoon MCQ",
+            "Forests & Grasslands",
+            "Soils",
+            "Agriculture",
+            "Minerals",
+            "Transport",
+            "World Map pt. 1",
+            "World Map pt. 2",
+            "Human Geography"
           ]
         },
         {
-          "name": "Unit 4: History & Culture",
+          "name": "Unit 4: History",
           "chapters": [
             {
               "name": "Ancient History",
               "topics": [
-                "Prehistoric Period & Indus Valley Civilization",
-                "Vedic Period & Religious Movements (Buddhism & Jainism)",
-                "Mahajanapadas & Mauryan Empire",
-                "Post-Mauryan & Gupta Empire",
-                "Harshavardhana & Ancient South Indian Dynasties"
+                "Stone Age",
+                "Indus Valley Civilization",
+                "Vedic Age",
+                "Buddhism & Jainism",
+                "Mahajanapadas & Magadh",
+                "Mauryan Empire",
+                "Post-Mauryan Empire",
+                "Sangam Age",
+                "Gupta Era",
+                "Post Gupta Era pt. 1",
+                "Post Gupta Era pt. 2",
+                "Cholas & Tripartite Struggle"
               ]
             },
             {
               "name": "Medieval History",
               "topics": [
-                "Early Medieval Period & Arab Invasions",
-                "Delhi Sultanate (1206-1526)",
-                "Mughal Empire & Sur Dynasty",
-                "Bhakti and Sufi Movements",
-                "Vijayanagara, Bahmani & Maratha Empires"
+                "Invasion of Islam",
+                "Delhi Sultanate (1206-1526) pt. 1",
+                "Delhi Sultanate (1206-1526) pt. 2",
+                "Vijayanagara Empire & Bahmani Kingdom",
+                "Mughal Empire pt. 1",
+                "Mughal Empire pt. 2",
+                "Aurangzeb & Later Mughals",
+                "Marathas",
+                "Bhakti & Sufi Movements"
               ]
             },
             {
               "name": "Modern History",
               "topics": [
-                "Advent of Europeans & Expansion of British Rule",
+                "Advent of Europeans",
+                "Socio Religious Reforms",
                 "Revolt of 1857 & Early Resistance",
-                "Socio-Religious Reform Movements",
-                "Indian National Congress & Freedom Movement",
-                "Gandhian Era & Mass Movements (1915-1947)",
-                "Governor-Generals, Viceroys & Constitutional Milestones"
-              ]
-            },
-            {
-              "name": "Art & Culture",
-              "topics": [
-                "Classical and Folk Dances of India",
-                "Indian Classical Music & Traditional Instruments",
-                "Major Festivals, Fairs & Fairs of Indian States",
-                "Architecture, Temples, Caves & UNESCO World Heritage Sites",
-                "Traditional Paintings, Handicrafts & Martial Arts"
+                "Indian National Congress",
+                "Partition of Bengal",
+                "Gandhian Era",
+                "Bhagat Singh & Revolutionary Activities",
+                "Civil Disobedience Movement",
+                "Quit India Movement",
+                "Governor-Generals & Viceroys and the 1942–1947"
               ]
             }
+          ]
+        },
+        {
+          "name": "Static GK",
+          "chapters": [
+            "All Music Question 2025",
+            "All Folk Dance Question 2025",
+            "All Festivals Question 2025",
+            "All Architecture Question 2025",
+            "Classical Dance",
+            "Folk Dances pt. 1",
+            "Folk Dances pt. 2",
+            "Festivals of India",
+            "Gharana & Music",
+            "Census",
+            "Important Days",
+            "Musical Instruments",
+            "Books & Authors",
+            "Sports",
+            "International Organizations",
+            "National Organizations"
           ]
         },
         {
@@ -313,17 +350,6 @@
                 "Ecology, Biodiversity & Environmental Issues"
               ]
             }
-          ]
-        },
-        {
-          "name": "Static GK & CA",
-          "chapters": [
-            "National Parks, Wildlife Sanctuaries & Biosphere Reserves",
-            "Important National & International Days with Themes",
-            "International Organizations, Summits & Headquarters",
-            "Awards, Honours, Books & Authors",
-            "Sports Events, Cups, Trophies & Terminology",
-            "Current Affairs: National, International & Major Government Initiatives"
           ]
         }
       ]

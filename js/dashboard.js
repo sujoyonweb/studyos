@@ -100,12 +100,17 @@ const dashboardApp = {
             });
 
             subjectHTML += `
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; font-weight: 600;">
-                        <span style="color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%;">${subj.name}</span>
-                        <span class="text-muted" style="font-size: 0.75rem;">${subjStats.mastered} / ${subjStats.leaves} <span class="text-accent" style="font-weight: 800; font-size: 0.875rem; margin-left: 0.25rem;">${subjStats.percent}%</span></span>
+                <div class="subj-breakdown-item">
+                    <div class="subj-breakdown-header">
+                        <span class="subj-breakdown-name" title="${subj.name}">${subj.name}</span>
+                        <div class="subj-breakdown-meta">
+                            <span class="subj-breakdown-count">${subjStats.mastered}<span>/${subjStats.leaves}</span></span>
+                            <span class="subj-breakdown-pct ${subjStats.percent === 100 ? 'is-complete' : ''}">${subjStats.percent}%</span>
+                        </div>
                     </div>
-                    <div class="dash-mini-progress"><div class="dash-mini-progress-bar" style="width: ${subjStats.percent}%;"></div></div>
+                    <div class="dash-mini-progress">
+                        <div class="dash-mini-progress-bar ${subjStats.percent === 100 ? 'is-complete' : ''}" style="width: ${subjStats.percent}%;"></div>
+                    </div>
                 </div>
             `;
         });
