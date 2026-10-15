@@ -143,6 +143,11 @@ const mockApp = {
     deleteMock: (id) => {
         ui.confirm("Are you sure you want to delete this test?", () => {
             mockApp.data = mockApp.data.filter(mock => mock.id !== id);
+            const deleted = storage.getKey('deletedIds', []);
+            if (!deleted.includes(id)) {
+                deleted.push(id);
+                storage.setKey('deletedIds', deleted);
+            }
             storage.setKey('mocks', mockApp.data);
             mockApp.renderMocks();
 

@@ -1,11 +1,9 @@
 const storage = {
-    // Returns YYYY-MM-DD in the user's local timezone
     getLocalDate: (d = new Date()) => {
         const offset = d.getTimezoneOffset() * 60000;
         return new Date(d.getTime() - offset).toISOString().split('T')[0];
     },
 
-    // Core helper to parse objects or strings safely
     getKey: (key, defaultValue = null) => {
         const data = localStorage.getItem(`studyOS_${key}`);
         if (!data) return defaultValue;
@@ -16,27 +14,39 @@ const storage = {
         }
     },
     
-    // Core helper to save data + trigger non-blocking background auto-sync
-    setKey: (key, value) => {
+    setKey: (key, value, skipSync = false) => {
         const val = typeof value === 'object' ? JSON.stringify(value) : value;
         localStorage.setItem(`studyOS_${key}`, val);
-        if (typeof backupApp !== 'undefined' && backupApp.notifyDataChanged) {
+        if (
+            !skipSync &&
+            typeof backupApp !== 'undefined' &&
+            !backupApp.isBooting &&
+            !backupApp.isApplying &&
+            !backupApp.isSyncing &&
+            backupApp.notifyDataChanged
+        ) {
+            const times = storage.getKey('keyTimes', {});
+            times[key] = Date.now();
+            localStorage.setItem('studyOS_keyTimes', JSON.stringify(times));
             backupApp.notifyDataChanged(key);
         }
     },
     
-    // --- Progress Tracking ---
     getProgress: () => storage.getKey('progress', {}),
     saveProgress: (data) => storage.setKey('progress', data),
     
-    // --- UI State Tracking (The "Memory") ---
     getAppState: () => ({
         exam: storage.getKey('exam', 'cgl'),
         subject: storage.getKey('subject', null),
-        view: storage.getKey('view', 'home')
+        view: sessionStorage.getItem('studyOS_view') || 'home'
     }),
     
     saveAppState: (key, value) => {
-        storage.setKey(key, value);
+        if (key === 'view') {
+            sessionStorage.setItem('studyOS_view', value);
+            localStorage.removeItem('studyOS_view');
+            return;
+        }
+        storage.setKey(key, value, true);
     }
 };

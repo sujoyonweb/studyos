@@ -5,9 +5,37 @@
 const backupApp = {
     autoSyncTimer: null,
     isSyncing: false,
+    isApplying: false,
+    isBooting: true,
+
+    // Only real study data modifications trigger cloud sync
+    SYNCABLE_KEYS: [
+        'progress',
+        'timeLogs',
+        'mocks',
+        'routine',
+        'routinePrefs',
+        'focusTasks',
+        'customSubjects',
+        'preferences',
+        'deletedIds',
+        'keyTimes'
+    ],
+
+    // Device-local UI keys that must never be uploaded or overwritten by cloud
+    LOCAL_ONLY_KEYS: [
+        'gistConfig',
+        'syncPending',
+        'lastExportTime',
+        'view',
+        'collapsedTopics',
+        'exam',
+        'subject'
+    ],
 
     init: () => {
         backupApp.requestPersistentStorage();
+        localStorage.removeItem('studyOS_view'); // Clean up legacy stuck view key
         backupApp.updateUI();
 
         // Populate saved GitHub Token state in UI
@@ -27,7 +55,18 @@ const backupApp = {
             backupApp.updateUI();
         });
 
-        // Silent background pull & merge on app boot if Cloud is configured
+        // Flush pending changes immediately when minimizing app or closing tab
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && storage.getKey('syncPending', false)) {
+                if (backupApp.autoSyncTimer) {
+                    clearTimeout(backupApp.autoSyncTimer);
+                    backupApp.autoSyncTimer = null;
+                }
+                backupApp.syncWithCloud(true);
+            }
+        });
+
+        // Silent background pull on app boot if Cloud is configured
         if (cfg.token && navigator.onLine) {
             setTimeout(() => backupApp.syncWithCloud(true), 1200);
         }
@@ -56,7 +95,7 @@ const backupApp = {
             gistId: gistId || (cleanToken === current.token ? current.gistId : ''),
             lastCloudSync: current.lastCloudSync
         };
-        storage.setKey('gistConfig', updated);
+        storage.setKey('gistConfig', updated, true);
         backupApp.updateUI();
         return updated;
     },
@@ -70,7 +109,7 @@ const backupApp = {
         const tokenInput = document.getElementById('cloud-gist-token');
         const token = tokenInput ? tokenInput.value.trim() : '';
         if (!token) {
-            storage.setKey('gistConfig', { token: '', gistId: '', lastCloudSync: null });
+            storage.setKey('gistConfig', { token: '', gistId: '', lastCloudSync: null }, true);
             backupApp.updateUI();
             document.getElementById('cloud-setup-box').style.display = 'none';
             return ui.alert("Cloud token cleared. Running in Local-Only mode.");
@@ -80,12 +119,12 @@ const backupApp = {
         backupApp.syncWithCloud(false);
     },
 
-    // Triggered automatically by storage.setKey() whenever study data changes
+    // Triggered only when actual user study data changes (30s batch delay)
     notifyDataChanged: (key) => {
-        const ignored = ['lastExportTime', 'gistConfig', 'syncPending', 'view', 'collapsedTopics'];
-        if (ignored.includes(key)) return;
+        if (backupApp.isSyncing || backupApp.isApplying || backupApp.isBooting) return;
+        if (!backupApp.SYNCABLE_KEYS.includes(key)) return;
 
-        storage.setKey('syncPending', true);
+        storage.setKey('syncPending', true, true);
         backupApp.updateUI();
 
         const cfg = backupApp.getCloudConfig();
@@ -93,8 +132,17 @@ const backupApp = {
 
         if (backupApp.autoSyncTimer) clearTimeout(backupApp.autoSyncTimer);
         backupApp.autoSyncTimer = setTimeout(() => {
+            backupApp.autoSyncTimer = null;
             backupApp.syncWithCloud(true);
-        }, 5000);
+        }, 30000);
+    },
+
+    getBaseTopicId: (pk) => {
+        const suffixes = ['_R_D', '_rehabTime', '_broken', '_C', '_Q', '_R', '_T', '_u'];
+        for (const s of suffixes) {
+            if (pk.endsWith(s)) return pk.slice(0, -s.length);
+        }
+        return pk;
     },
 
     // LAYER 2: CORE VAULT PACKER & SMART MERGE ENGINE
@@ -104,10 +152,10 @@ const backupApp = {
             data: {}
         };
 
-        const excludedKeys = ['studyOS_gistConfig', 'studyOS_syncPending'];
+        const excludedRaw = backupApp.LOCAL_ONLY_KEYS.map(k => `studyOS_${k}`);
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('studyOS_') && !excludedKeys.includes(key)) {
+            if (key && key.startsWith('studyOS_') && !excludedRaw.includes(key)) {
                 const raw = localStorage.getItem(key);
                 try { payload.data[key.replace('studyOS_', '')] = JSON.parse(raw); }
                 catch (e) { payload.data[key.replace('studyOS_', '')] = raw; }
@@ -135,86 +183,125 @@ const backupApp = {
 
         const mode = modeOverride || document.getElementById('sync-mode')?.value || 'merge';
         backupApp.createSafetySnapshot();
+        backupApp.isApplying = true;
 
-        if (mode === 'mirror') {
-            Object.keys(localStorage).forEach(k => {
-                if (k.startsWith('studyOS_') && k !== 'studyOS_gistConfig') localStorage.removeItem(k);
-            });
-            Object.entries(sourceData).forEach(([k, v]) => {
-                if (k !== 'gistConfig') storage.setKey(k, v);
-            });
-        } else {
-            Object.entries(sourceData).forEach(([k, impVal]) => {
-                if (impVal === null || impVal === undefined || k === 'gistConfig' || k === 'syncPending') return;
-                const localVal = storage.getKey(k);
+        try {
+            if (mode === 'mirror') {
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith('studyOS_') && k !== 'studyOS_gistConfig') localStorage.removeItem(k);
+                });
+                Object.entries(sourceData).forEach(([k, v]) => {
+                    if (!backupApp.LOCAL_ONLY_KEYS.includes(k)) storage.setKey(k, v, true);
+                });
+            } else {
+                const localTimes = storage.getKey('keyTimes', {});
+                const impTimes = sourceData.keyTimes || {};
+                const mergedTimes = { ...localTimes };
+                Object.keys(impTimes).forEach(tk => {
+                    mergedTimes[tk] = Math.max(localTimes[tk] || 0, impTimes[tk] || 0);
+                });
+                storage.setKey('keyTimes', mergedTimes, true);
 
-                if (k === 'progress' && typeof impVal === 'object') {
-                    const newProg = { ...(localVal || {}) };
-                    Object.keys(impVal).forEach(pk => {
-                        if (pk.endsWith('_broken')) {
-                            const baseId = pk.slice(0, -7);
-                            const tVal = Math.max(newProg[`${baseId}_T`] || 0, impVal[`${baseId}_T`] || 0);
-                            newProg[pk] = tVal > 0 ? false : Boolean(newProg[pk] || impVal[pk]);
-                        } else if (typeof impVal[pk] === 'number') {
-                            newProg[pk] = Math.max(newProg[pk] || 0, impVal[pk]);
-                        } else if (typeof impVal[pk] === 'boolean') {
-                            newProg[pk] = Boolean(newProg[pk] || impVal[pk]);
-                        } else if (typeof impVal[pk] === 'string') {
-                            if (!newProg[pk] || new Date(impVal[pk]) > new Date(newProg[pk])) newProg[pk] = impVal[pk];
-                        }
-                    });
-                    storage.setKey(k, newProg);
-                }
-                else if (k === 'timeLogs' && typeof impVal === 'object') {
-                    const newLogs = { ...(localVal || {}) };
-                    Object.keys(impVal).forEach(date => newLogs[date] = Math.max(newLogs[date] || 0, impVal[date]));
-                    storage.setKey(k, newLogs);
-                }
-                else if ((k === 'mocks' || k === 'routine') && Array.isArray(impVal)) {
-                    const mergedArr = Array.isArray(localVal) ? [...localVal] : [];
-                    impVal.forEach(impItem => {
-                        if (!impItem || !impItem.id) return;
-                        const idx = mergedArr.findIndex(m => m.id === impItem.id);
-                        if (idx === -1) mergedArr.push(impItem);
-                        else {
-                            const localUpdated = mergedArr[idx].updatedAt || parseInt(mergedArr[idx].id) || 0;
-                            const impUpdated = impItem.updatedAt || parseInt(impItem.id) || 0;
-                            mergedArr[idx] = impUpdated >= localUpdated
-                                ? { ...mergedArr[idx], ...impItem }
-                                : { ...impItem, ...mergedArr[idx] };
-                        }
-                    });
-                    if (k === 'mocks') {
-                        mergedArr.sort((a, b) => {
-                            const dateDiff = (b.date || '').localeCompare(a.date || '');
-                            return dateDiff !== 0 ? dateDiff : (parseInt(b.id) || 0) - (parseInt(a.id) || 0);
-                        });
-                    }
-                    if (k === 'routine') mergedArr.sort((a, b) => (a.rawMins || 0) - (b.rawMins || 0));
-                    storage.setKey(k, mergedArr);
-                }
-                else if (k === 'customSubjects' && typeof impVal === 'object') {
-                    const mergedCustom = { ...(localVal || {}) };
-                    Object.entries(impVal).forEach(([examKey, subjList]) => {
-                        if (!Array.isArray(subjList)) return;
-                        if (!mergedCustom[examKey]) mergedCustom[examKey] = [...subjList];
-                        else {
-                            subjList.forEach(s => {
-                                if (!mergedCustom[examKey].some(existing => existing.name === s.name)) {
-                                    mergedCustom[examKey].push(s);
+                const localDeleted = storage.getKey('deletedIds', []);
+                const impDeleted = Array.isArray(sourceData.deletedIds) ? sourceData.deletedIds : [];
+                const deletedSet = new Set([...localDeleted, ...impDeleted]);
+                storage.setKey('deletedIds', [...deletedSet], true);
+
+                Object.entries(sourceData).forEach(([k, impVal]) => {
+                    if (impVal === null || impVal === undefined || k === 'keyTimes' || k === 'deletedIds' || backupApp.LOCAL_ONLY_KEYS.includes(k)) return;
+                    const localVal = storage.getKey(k);
+
+                    if (k === 'progress' && typeof impVal === 'object') {
+                        const localProg = localVal || {};
+                        const newProg = { ...localProg };
+
+                        Object.keys(impVal).forEach(pk => {
+                            const baseId = backupApp.getBaseTopicId(pk);
+                            const localUpdated = localProg[`${baseId}_u`] || 0;
+                            const impUpdated = impVal[`${baseId}_u`] || 0;
+
+                            // Per-topic timestamp resolution (allows unchecking C and decrementing Q/R/T)
+                            if (localUpdated > 0 || impUpdated > 0) {
+                                if (impUpdated > localUpdated) {
+                                    newProg[pk] = impVal[pk];
                                 }
+                            } else {
+                                // Legacy fallback when neither side has a timestamp yet
+                                if (pk.endsWith('_broken')) {
+                                    const tVal = Math.max(newProg[`${baseId}_T`] || 0, impVal[`${baseId}_T`] || 0);
+                                    newProg[pk] = tVal > 0 ? false : Boolean(newProg[pk] || impVal[pk]);
+                                } else if (typeof impVal[pk] === 'number') {
+                                    newProg[pk] = Math.max(newProg[pk] || 0, impVal[pk]);
+                                } else if (typeof impVal[pk] === 'boolean') {
+                                    newProg[pk] = Boolean(newProg[pk] || impVal[pk]);
+                                } else if (typeof impVal[pk] === 'string') {
+                                    if (!newProg[pk] || new Date(impVal[pk]) > new Date(newProg[pk])) newProg[pk] = impVal[pk];
+                                }
+                            }
+                        });
+                        storage.setKey(k, newProg, true);
+                    }
+                    else if (k === 'timeLogs' && typeof impVal === 'object') {
+                        const newLogs = { ...(localVal || {}) };
+                        Object.keys(impVal).forEach(date => newLogs[date] = Math.max(newLogs[date] || 0, impVal[date]));
+                        storage.setKey(k, newLogs, true);
+                    }
+                    else if ((k === 'mocks' || k === 'routine') && Array.isArray(impVal)) {
+                        const mergedArr = (Array.isArray(localVal) ? [...localVal] : []).filter(item => !deletedSet.has(item.id));
+                        impVal.forEach(impItem => {
+                            if (!impItem || !impItem.id || deletedSet.has(impItem.id)) return;
+                            const idx = mergedArr.findIndex(m => m.id === impItem.id);
+                            if (idx === -1) mergedArr.push(impItem);
+                            else {
+                                const localUpdated = mergedArr[idx].updatedAt || parseInt(mergedArr[idx].id) || 0;
+                                const impUpdated = impItem.updatedAt || parseInt(impItem.id) || 0;
+                                mergedArr[idx] = impUpdated >= localUpdated
+                                    ? { ...mergedArr[idx], ...impItem }
+                                    : { ...impItem, ...mergedArr[idx] };
+                            }
+                        });
+                        if (k === 'mocks') {
+                            mergedArr.sort((a, b) => {
+                                const dateDiff = (b.date || '').localeCompare(a.date || '');
+                                return dateDiff !== 0 ? dateDiff : (parseInt(b.id) || 0) - (parseInt(a.id) || 0);
                             });
                         }
-                    });
-                    storage.setKey(k, mergedCustom);
-                }
-                else {
-                    storage.setKey(k, impVal);
-                }
-            });
+                        if (k === 'routine') mergedArr.sort((a, b) => (a.rawMins || 0) - (b.rawMins || 0));
+                        storage.setKey(k, mergedArr, true);
+                    }
+                    else if (k === 'customSubjects' && typeof impVal === 'object') {
+                        const mergedCustom = { ...(localVal || {}) };
+                        Object.entries(impVal).forEach(([examKey, subjList]) => {
+                            if (!Array.isArray(subjList)) return;
+                            if (!mergedCustom[examKey]) mergedCustom[examKey] = [...subjList];
+                            else {
+                                subjList.forEach(s => {
+                                    if (!mergedCustom[examKey].some(existing => existing.name === s.name)) {
+                                        mergedCustom[examKey].push(s);
+                                    }
+                                });
+                            }
+                        });
+                        storage.setKey(k, mergedCustom, true);
+                    }
+                    else {
+                        // Only overwrite preferences/focusTasks if remote is newer than local
+                        if (localVal === null || (impTimes[k] || 0) > (localTimes[k] || 0)) {
+                            storage.setKey(k, impVal, true);
+                        }
+                    }
+                });
+            }
+        } finally {
+            backupApp.isApplying = false;
         }
 
-        // Refresh in-memory app state immediately
+        // Refresh in-memory settings & app state immediately without changing active tab
+        if (typeof settingsApp !== 'undefined') {
+            const savedSettings = storage.getKey('preferences', settingsApp.defaultSettings);
+            settingsApp.current = { ...settingsApp.defaultSettings, ...savedSettings };
+            settingsApp.applyTheme(settingsApp.current.theme);
+        }
         app.progressData = storage.getProgress() || {};
         if (app.currentExamData) {
             app.examTree = syllabusEngine.buildTree(app.currentExamData, app.activeExamId);
@@ -246,6 +333,8 @@ const backupApp = {
         backupApp.isSyncing = true;
         backupApp.updateUI('Syncing...');
 
+        const wasPending = storage.getKey('syncPending', false);
+
         const headers = {
             'Authorization': `token ${cfg.token}`,
             'Accept': 'application/vnd.github.v3+json',
@@ -254,10 +343,11 @@ const backupApp = {
 
         try {
             let gistId = cfg.gistId;
+            let remoteExists = false;
 
             // Step 1: Auto-discover existing studyOS_Vault.json Gist if gistId isn't saved yet
             if (!gistId) {
-                const listRes = await fetch('https://api.github.com/gists?per_page=100', { headers });
+                const listRes = await fetch('https://api.github.com/gists?per_page=100', { headers, cache: 'no-store' });
                 if (!listRes.ok) throw new Error("GitHub authentication failed. Check your token.");
                 const gists = await listRes.json();
                 const found = gists.find(g => g.files && g.files['studyOS_Vault.json']);
@@ -269,11 +359,12 @@ const backupApp = {
 
             // Step 2: Pull & Smart Merge remote data if Gist exists
             if (gistId) {
-                const getRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
+                const getRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers, cache: 'no-store' });
                 if (getRes.ok) {
                     const gistData = await getRes.json();
                     const fileContent = gistData.files?.['studyOS_Vault.json']?.content;
                     if (fileContent) {
+                        remoteExists = true;
                         const remoteVault = JSON.parse(fileContent);
                         backupApp.applyVaultData(remoteVault, 'merge');
                     }
@@ -282,38 +373,42 @@ const backupApp = {
                 }
             }
 
-            // Step 3: Push merged local Vault back to Gist
-            const mergedPayload = backupApp.buildVaultPayload();
-            const bodyPayload = {
-                description: 'Study OS Cloud Vault (Auto-Synced)',
-                public: false,
-                files: {
-                    'studyOS_Vault.json': {
-                        content: JSON.stringify(mergedPayload, null, 2)
+            // Step 3: Push merged Vault back to Gist ONLY if local changes were pending, manual sync was clicked, or Gist is new
+            let finalGistId = gistId;
+            if (wasPending || !silent || !remoteExists) {
+                const mergedPayload = backupApp.buildVaultPayload();
+                const bodyPayload = {
+                    description: 'Study OS Cloud Vault (Auto-Synced)',
+                    public: false,
+                    files: {
+                        'studyOS_Vault.json': {
+                            content: JSON.stringify(mergedPayload, null, 2)
+                        }
                     }
-                }
-            };
+                };
 
-            const pushUrl = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
-            const pushMethod = gistId ? 'PATCH' : 'POST';
+                const pushUrl = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
+                const pushMethod = gistId ? 'PATCH' : 'POST';
 
-            const pushRes = await fetch(pushUrl, {
-                method: pushMethod,
-                headers,
-                body: JSON.stringify(bodyPayload)
-            });
+                const pushRes = await fetch(pushUrl, {
+                    method: pushMethod,
+                    headers,
+                    body: JSON.stringify(bodyPayload)
+                });
 
-            if (!pushRes.ok) throw new Error("Failed to write to GitHub Gist.");
-            const savedGist = await pushRes.json();
+                if (!pushRes.ok) throw new Error("Failed to write to GitHub Gist.");
+                const savedGist = await pushRes.json();
+                finalGistId = savedGist.id;
+            }
 
             const nowISO = new Date().toISOString();
             storage.setKey('gistConfig', {
                 token: cfg.token,
-                gistId: savedGist.id,
+                gistId: finalGistId,
                 lastCloudSync: nowISO
-            });
-            storage.setKey('lastExportTime', nowISO);
-            storage.setKey('syncPending', false);
+            }, true);
+            storage.setKey('lastExportTime', nowISO, true);
+            storage.setKey('syncPending', false, true);
 
             backupApp.isSyncing = false;
             backupApp.updateUI();
@@ -332,8 +427,8 @@ const backupApp = {
     // LAYER 4: MANUAL FILE EXPORT, NATIVE GOOGLE DRIVE SHARE & SYNC CODES
     exportData: () => {
         const payload = backupApp.buildVaultPayload();
-        storage.setKey('lastExportTime', payload._meta.timestamp);
-        storage.setKey('syncPending', false);
+        storage.setKey('lastExportTime', payload._meta.timestamp, true);
+        storage.setKey('syncPending', false, true);
         backupApp.updateUI();
 
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
@@ -359,8 +454,8 @@ const backupApp = {
                         text: `Study OS Backup (${storage.getLocalDate()})`,
                         files: [file]
                     });
-                    storage.setKey('lastExportTime', payload._meta.timestamp);
-                    storage.setKey('syncPending', false);
+                    storage.setKey('lastExportTime', payload._meta.timestamp, true);
+                    storage.setKey('syncPending', false, true);
                     backupApp.updateUI();
                     return;
                 }
@@ -368,7 +463,6 @@ const backupApp = {
                 if (err.name === 'AbortError') return;
             }
         }
-        // Fallback to direct download if OS file share sheet isn't supported on desktop
         backupApp.exportData();
     },
 
@@ -378,7 +472,7 @@ const backupApp = {
             const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
             const syncCode = `STUDYOS_V1:${encoded}`;
             await navigator.clipboard.writeText(syncCode);
-            storage.setKey('lastExportTime', payload._meta.timestamp);
+            storage.setKey('lastExportTime', payload._meta.timestamp, true);
             backupApp.updateUI();
             ui.alert("Sync Code copied to clipboard! Paste it into WhatsApp, Telegram, or Keep to import on your other device.");
         } catch (err) {
@@ -392,9 +486,7 @@ const backupApp = {
             if (navigator.clipboard && navigator.clipboard.readText) {
                 rawText = await navigator.clipboard.readText();
             }
-        } catch (e) {
-            // Fallback to prompt if clipboard read permission is denied
-        }
+        } catch (e) {}
 
         if (!rawText || !rawText.trim().startsWith('STUDYOS_V1:')) {
             rawText = window.prompt("Paste your Study OS Sync Code (starts with STUDYOS_V1:):") || '';
@@ -492,7 +584,7 @@ const backupApp = {
             } else if (!navigator.onLine) {
                 elCloudStatus.innerHTML = `<span style="color: var(--warning);">● Offline (${isPending ? 'Changes Queued' : 'Protected'})</span>`;
             } else if (isPending) {
-                elCloudStatus.innerHTML = `<span style="color: var(--warning);">● Auto-Sync Pending...</span>`;
+                elCloudStatus.innerHTML = `<span style="color: var(--warning);">● Changes Queued (Auto-Sync in 30s)</span>`;
             } else {
                 elCloudStatus.innerHTML = `<span style="color: var(--success);">● Cloud Auto-Sync Active</span>`;
             }

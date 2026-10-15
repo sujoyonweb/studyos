@@ -404,13 +404,15 @@ const progressTracker = {
 
     getFocusTasks: () => {
         let tasks = storage.getKey('focusTasks', progressTracker.defaultFocusTasks);
-        const lastDate = storage.getKey('focusTasksDate', storage.getLocalDate());
+        const lastDate = storage.getKey('focusTasksDate', null);
         const today = storage.getLocalDate();
         
         if (lastDate !== today) {
-            tasks.forEach(t => t.done = false); 
-            storage.setKey('focusTasks', tasks);
-            storage.setKey('focusTasksDate', today);
+            if (lastDate !== null) {
+                tasks.forEach(t => t.done = false);
+                storage.setKey('focusTasks', tasks);
+            }
+            storage.setKey('focusTasksDate', today, true);
         }
         return tasks;
     },
@@ -567,14 +569,16 @@ const app = {
         const urlParams = new URLSearchParams(window.location.search);
         const urlView = urlParams.get('view');
         const validViews = ['home', 'dashboard', 'syllabus', 'timer', 'routine', 'mocks', 'settings'];
-        const initialView = (urlView && validViews.includes(urlView)) ? urlView : (state.view || 'home');
+        const initialView = (urlView && validViews.includes(urlView))
+            ? urlView
+            : (validViews.includes(state.view) ? state.view : 'home');
 
         const examId = (state.exam && state.exam !== 'undefined') ? state.exam : 'cgl';
         app.activeExamId = examId;
         settingsApp.syncExamProfile(examId);
 
         progressTracker.updateHomeUI();
-        app.switchView(initialView, false);
+        app.switchView(initialView, true);
 
         if (examSelector) examSelector.value = examId;
         app.loadExam(examId, state.subject);
@@ -627,9 +631,10 @@ const app = {
             progressTracker.updateHomeUI();
             if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
             if (typeof mockApp !== 'undefined') mockApp.renderMocks();
-
         } catch (error) {
             console.error(`Error loading ${examId}.json:`, error);
+        } finally {
+            if (typeof backupApp !== 'undefined') backupApp.isBooting = false;
         }
     },
 

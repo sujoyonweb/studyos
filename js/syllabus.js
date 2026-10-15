@@ -324,6 +324,7 @@ const syllabusApp = {
                 app.progressData[`${id}_broken`] = false;
             }
         }
+        app.progressData[`${id}_u`] = Date.now();
         storage.saveProgress(app.progressData);
 
         syllabusApp.updateTallyUI(id, type, app.progressData);
@@ -336,6 +337,7 @@ const syllabusApp = {
         const key = `${id}_${type}`;
         if (app.progressData[key] && app.progressData[key] > 0) {
             app.progressData[key]--;
+            app.progressData[`${id}_u`] = Date.now();
             storage.setKey('progress', app.progressData);
 
             syllabusApp.updateTallyUI(id, type, app.progressData);
