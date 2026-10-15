@@ -20,7 +20,7 @@
             "Mixture & Alligation",
             "Time and Work",
             "Pipe & Cistern",
-            "Time & Distance",
+            "Time, Speed & Distance",
             "Boat & Stream",
             "Problems on Trains",
             "Partnership",
@@ -248,7 +248,7 @@
           "name": "Unit 4: History",
           "chapters": [
             {
-              "name": "Ancient History",
+              "name": "Part 01 - Ancient History",
               "topics": [
                 "Stone Age",
                 "Indus Valley Civilization",
@@ -265,7 +265,7 @@
               ]
             },
             {
-              "name": "Medieval History",
+              "name": "Part 02 - Medieval History",
               "topics": [
                 "Invasion of Islam",
                 "Delhi Sultanate (1206-1526) pt. 1",
@@ -279,7 +279,7 @@
               ]
             },
             {
-              "name": "Modern History",
+              "name": "Part 03 - Modern History",
               "topics": [
                 "Advent of Europeans",
                 "Socio Religious Reforms",
@@ -320,17 +320,21 @@
           "name": "Unit 6: General Science",
           "chapters": [
             {
-              "name": "Physics",
+              "name": "Sub:01 - Physics",
               "topics": [
                 "Units, Dimensions & Motion",
-                "Work, Power, Energy & Gravitation",
-                "Fluid Mechanics, Surface Tension & Heat",
-                "Waves, Sound & Optics (Reflection & Refraction)",
-                "Electricity, Magnetism & Nuclear Physics"
+                "Motion",
+                "Force & Laws of Motion",
+                "Gravitation & Work Done",
+                "Sound",
+                "Reflection & Refraction",
+                "Human Eye and Vision",
+                "Electricity",
+                "Magnetic Effect & Electric Current"
               ]
             },
             {
-              "name": "Chemistry",
+              "name": "Sub:02 - Chemistry",
               "topics": [
                 "Matter, Atomic Structure & Chemical Bonding",
                 "Periodic Table & Chemical Reactions",
@@ -340,14 +344,29 @@
               ]
             },
             {
-              "name": "Biology",
+              "name": "Sub:03 - Biology",
               "topics": [
                 "Cell Biology, Organelles & Cell Division",
-                "Human Organ Systems (Digestive, Circulatory, Respiratory, Excretory)",
-                "Nervous System, Endocrine Glands & Hormones",
-                "Human Diseases, Nutrition, Vitamins & Immunity",
-                "Plant Physiology, Photosynthesis & Plant Diseases",
-                "Ecology, Biodiversity & Environmental Issues"
+                "Plant Tissue",
+                "Animal Tissue",
+                "Plant Kingdom",
+                "Animal Kingdom",
+                "Nervous System",
+                "Hormones & Plant Movement",
+                "Reproduction",
+                "Digestive & Respiratory System",
+                "Circulatory & Excretory System",
+                "Diseases",
+                "Nutrition",
+                "Genetics & Skeletal System"
+              ]
+            },
+            {
+              "name": "Sub:04 - Environment and Ecology",
+              "topics": [
+                "Environment and Ecology Lec 01",
+                "Environment and Ecology Lec 02",
+                "Environment and Ecology Lec 03"
               ]
             }
           ]
