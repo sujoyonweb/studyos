@@ -70,6 +70,16 @@ const dashboardApp = {
         const TOTAL_SCORE = s.totalScore || 200;
         const DAILY_GOAL_MINS = (s.dailyGoal || 8) * 60;
 
+        const setCardVisualProgress = (valElId, pct, rgb, colorVar) => {
+            const card = document.getElementById(valElId)?.closest('.card');
+            if (card) {
+                const clamped = Math.min(100, Math.max(0, Math.round(pct || 0)));
+                card.style.setProperty('--stat-pct', `${clamped}%`);
+                card.style.setProperty('--stat-rgb', rgb);
+                card.style.setProperty('--stat-color', colorVar);
+            }
+        };
+
         let daysLeft = null;
         if (s.examDate) {
             const dDay = new Date(s.examDate + 'T00:00:00');
@@ -124,14 +134,16 @@ const dashboardApp = {
             `;
         });
 
+        globalStats.mastered = Math.round(globalStats.mastered * 10) / 10;
         const sylPercent = globalStats.maxPts === 0 ? 0 : Math.round((globalStats.pts / globalStats.maxPts) * 100);
         document.getElementById('dash-stat-syllabus').innerText = `${sylPercent}%`;
+        setCardVisualProgress('dash-stat-syllabus', sylPercent, '59, 130, 246', 'var(--brand-accent)');
         document.getElementById('dash-subject-breakdown').innerHTML = subjectHTML;
 
         const elDebt = document.getElementById('dash-revision-debt');
         if (elDebt) elDebt.innerHTML = debtHTML !== '' ? debtHTML : `<div class="text-center text-success" style="font-weight: 600; padding: 2rem 0;">No revision debt! 🎉</div>`;
 
-        const conceptsLeft = globalStats.leaves - globalStats.mastered;
+        const conceptsLeft = Math.max(0, globalStats.leaves - globalStats.mastered);
         if (daysLeft !== null && daysLeft > 0 && conceptsLeft > 0) {
             const reqPace = (conceptsLeft / daysLeft).toFixed(1);
             badgesHtml += `<span class="badge rev">Pace: ${reqPace} topics/day</span>`;
@@ -162,6 +174,8 @@ const dashboardApp = {
 
         document.getElementById('dash-stat-mocks').innerText = avgScore > 0 ? avgScore : '0.0';
         document.getElementById('dash-stat-percentile').innerHTML = `${avgPercentile}<span>%</span>`;
+        setCardVisualProgress('dash-stat-mocks', ((parseFloat(avgScore) || 0) / TARGET_SCORE) * 100, '16, 185, 129', 'var(--success)');
+        setCardVisualProgress('dash-stat-percentile', parseFloat(avgPercentile) || 0, '245, 158, 11', 'var(--warning)');
 
         const elGap = document.getElementById('dash-stat-gap');
         if (elGap) {
@@ -220,48 +234,65 @@ const dashboardApp = {
             `;
         }
 
+        const avgDailyHours = (total7DayMins / 60) / 7;
         document.getElementById('dash-activity-chart').innerHTML = chartHtml;
-        document.getElementById('dash-stat-hours').innerHTML = `${((total7DayMins / 60) / 7).toFixed(1)}<span>h</span>`;
+        document.getElementById('dash-stat-hours').innerHTML = `${avgDailyHours.toFixed(1)}<span>h</span>`;
+        setCardVisualProgress('dash-stat-hours', (avgDailyHours / (s.dailyGoal || 8)) * 100, '139, 92, 246', 'var(--purple)');
 
         const streak = progressTracker.calculateStreakCount();
         document.getElementById('dash-stat-streak').innerHTML = streak > 0 ? `<span class="text-success">🔥 ${streak} Day Streak</span>` : `0 Day Streak`;
         const elMobileStreak = document.getElementById('mobile-nav-streak');
         if (elMobileStreak) elMobileStreak.innerHTML = `🔥 ${streak} Day`;
 
+        const savedLimit = Math.max(2, Math.min(500, parseInt(storage.getKey('mockGraphLimit', 10)) || 10));
+        const limitInput = document.getElementById('dash-mock-limit');
+        if (limitInput && document.activeElement !== limitInput) limitInput.value = savedLimit;
+
         const elMockChart = document.getElementById('dash-mock-chart');
         if (elMockChart) {
             if (fullMocks.length >= 2) {
-                const last10 = fullMocks.slice(0, 10).reverse();
-                const scores = last10.map(m => parseFloat(m.score) || 0);
-                let minScore = Math.max(0, Math.min(...scores) - 10);
-                let maxScore = Math.max(...scores) + 10;
-                if (minScore === maxScore) maxScore = minScore + 20;
+                const graphMocks = fullMocks.slice(0, savedLimit).reverse();
+                const scores = graphMocks.map(m => Math.max(0, parseFloat(m.score) || 0));
+                const scaleMax = Math.max(TARGET_SCORE, ...scores, 1);
 
                 const svgW = 500;
+                const topY = 24;
                 const svgH = 130;
+                const plotH = svgH - topY;
                 const padX = 24;
+
+                const targetY = svgH - ((TARGET_SCORE / scaleMax) * plotH);
+                const dotRadius = scores.length > 50 ? 2 : (scores.length > 15 ? 3.5 : 5);
+                const lineW = scores.length > 50 ? 2 : 3;
 
                 const pointsArr = scores.map((score, index) => {
                     const x = padX + ((index / (scores.length - 1)) * (svgW - padX * 2));
-                    const y = 24 + ((svgH - 24) - (((score - minScore) / (maxScore - minScore)) * (svgH - 24)));
-                    return { x, y, score, name: last10[index].name };
+                    const y = svgH - ((score / scaleMax) * plotH);
+                    return { x, y, score, name: graphMocks[index].name, date: graphMocks[index].date };
                 });
 
                 let svgSegments = ''; let svgCircles = '';
                 for (let i = 0; i < pointsArr.length - 1; i++) {
                     let p1 = pointsArr[i]; let p2 = pointsArr[i + 1];
                     svgSegments += `<polygon points="${p1.x},${svgH} ${p1.x},${p1.y} ${p2.x},${p2.y} ${p2.x},${svgH}" fill="url(#mockGradient)" />`;
-                    svgSegments += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="var(--success)" stroke-width="3" stroke-linecap="round"/>`;
+                    svgSegments += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="var(--success)" stroke-width="${lineW}" stroke-linecap="round"/>`;
                 }
 
                 pointsArr.forEach(p => {
                     svgCircles += `
-                        <circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--bg-surface)" stroke="var(--success)" stroke-width="2.5" class="mock-point"><title>${dashboardApp.escapeHTML(p.name)}: ${p.score}</title></circle>
+                        <circle cx="${p.x}" cy="${p.y}" r="${dotRadius}" fill="var(--bg-surface)" stroke="var(--success)" stroke-width="2" class="mock-point"><title>${dashboardApp.escapeHTML(p.name)} (${dashboardApp.escapeHTML(p.date)}): ${p.score}</title></circle>
                         <text x="${p.x}" y="${p.y - 10}" text-anchor="middle" fill="var(--text-main)" font-size="12" font-weight="800" class="chart-tooltip">${p.score}</text>
                     `;
                 });
 
-                elMockChart.innerHTML = `<svg viewBox="0 0 ${svgW} 150" width="100%" height="160" style="overflow: visible;"><defs><linearGradient id="mockGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--success)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--success)" stop-opacity="0.0"/></linearGradient></defs><line x1="${padX}" y1="${svgH}" x2="${svgW - padX}" y2="${svgH}" stroke="var(--border-light)" stroke-width="2" stroke-dasharray="6,6" />${svgSegments}${svgCircles}</svg>`;
+                elMockChart.innerHTML = `
+                    <svg viewBox="0 0 ${svgW} 150" width="100%" height="160" style="overflow: visible;">
+                        <defs><linearGradient id="mockGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="var(--success)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--success)" stop-opacity="0.0"/></linearGradient></defs>
+                        <line x1="${padX}" y1="${targetY}" x2="${svgW - padX}" y2="${targetY}" stroke="var(--text-muted)" stroke-opacity="0.5" stroke-width="1.2" stroke-dasharray="4,4" />
+                        <text x="${padX}" y="${targetY - 5}" fill="var(--text-muted)" font-size="9" font-weight="700" letter-spacing="0.05em">TARGET (${TARGET_SCORE})</text>
+                        <line x1="${padX}" y1="${svgH}" x2="${svgW - padX}" y2="${svgH}" stroke="var(--border-light)" stroke-width="2" stroke-dasharray="6,6" />
+                        ${svgSegments}${svgCircles}
+                    </svg>`;
             } else {
                 elMockChart.innerHTML = `<div class="text-center text-muted" style="font-size: 0.875rem;">Log at least 2 full mocks to view trend.</div>`;
             }

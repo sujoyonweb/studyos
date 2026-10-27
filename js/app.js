@@ -304,12 +304,16 @@ const progressTracker = {
         const traverse = node => {
             if (node.type === 'leaf') {
                 totalLeaves++;
-                if (p[`${node.id}_C`] && (p[`${node.id}_Q`] > 0) && (p[`${node.id}_T`] > 0)) masteredLeaves++;
+                const hasC = p[`${node.id}_C`] || (node.legacyId && p[`${node.id}_C`]);
+                const qCount = p[`${node.id}_Q`] || (node.legacyId && p[`${node.id}_Q`]) || 0;
+                if (hasC) masteredLeaves += 0.5;
+                if (qCount > 0) masteredLeaves += 0.5;
             } else if (node.children) {
                 node.children.forEach(traverse);
             }
         };
         if (app.examTree) app.examTree.forEach(subj => subj.tree.forEach(traverse));
+        masteredLeaves = Math.round(masteredLeaves * 10) / 10;
         if (totalLeaves === 0) totalLeaves = 1;
         
         const todayMidnight = new Date();

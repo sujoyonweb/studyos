@@ -246,9 +246,16 @@ const mockApp = {
     renderTrendGraph: (tests) => {
         const container = document.getElementById('mock-trend-container');
         if (!container) return;
-        
-        // Grab the 10 most recent tests, reverse for chronological order (left-to-right)
-        const graphData = [...tests].slice(0, 10).reverse(); 
+
+        // Strictly plot Full-Length mocks only; hide graph when filtering by Sectional
+        if (mockApp.filterType === 'sectional') {
+            container.style.display = 'none';
+            return;
+        }
+
+        const fullTests = (tests || []).filter(t => t.type === 'full');
+        const savedLimit = Math.max(2, Math.min(500, parseInt(storage.getKey('mockGraphLimit', 10)) || 10));
+        const graphData = fullTests.slice(0, savedLimit).reverse(); 
 
         if (graphData.length < 2) {
             container.style.display = 'none';
@@ -257,36 +264,47 @@ const mockApp = {
         
         container.style.display = 'block';
 
-        const scores = graphData.map(t => t.score);
-        const maxScore = Math.max(...scores);
-        const minScore = Math.min(...scores);
-        const padding = 20;
+        const targetScore = settingsApp.current?.targetScore || 165;
+        const scores = graphData.map(t => Math.max(0, parseFloat(t.score) || 0));
+        const scaleMax = Math.max(targetScore, ...scores, 1);
+
+        const padding = 22;
         const width = 750; 
-        const height = 120; 
-        
-        const range = maxScore - minScore || 1; 
-        const yRatio = (height - padding * 2) / range;
+        const height = 125; 
+        const plotH = height - padding * 2;
         const xStep = (width - padding * 2) / (graphData.length - 1);
+        const targetY = (height - padding) - ((targetScore / scaleMax) * plotH);
+        const dotRadius = graphData.length > 50 ? 2 : (graphData.length > 15 ? 3 : 4);
         
         let polylinePoints = '';
         let circlesHTML = '';
         
         graphData.forEach((test, index) => {
+            const scoreVal = Math.max(0, parseFloat(test.score) || 0);
             const x = padding + (index * xStep);
-            const y = height - padding - ((test.score - minScore) * yRatio);
+            const y = (height - padding) - ((scoreVal / scaleMax) * plotH);
             
             polylinePoints += `${x},${y} `;
             circlesHTML += `
                 <g class="trend-node">
-                    <circle cx="${x}" cy="${y}" r="4" fill="var(--bg-surface)" stroke="#3b82f6" stroke-width="2" />
-                    <title>${mockApp.escapeHTML(test.name)}&#10;Score: ${test.score} | Date: ${mockApp.escapeHTML(test.date)}</title>
+                    <circle cx="${x}" cy="${y}" r="${dotRadius}" fill="var(--bg-surface)" stroke="#3b82f6" stroke-width="2" />
+                    <title>${mockApp.escapeHTML(test.name)}
+Score: ${test.score} | Date: ${mockApp.escapeHTML(test.date)}</title>
                 </g>
             `;
         });
         
         container.innerHTML = `
-            <div class="trend-header">SCORE TREND (LAST ${graphData.length})</div>
+            <div class="trend-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span>FULL MOCK TREND (SHOWING ${graphData.length})</span>
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">LAST</span>
+                    <input type="number" id="mock-page-limit" class="small-number-input" value="${savedLimit}" min="2" max="500" style="width: 3.75rem; padding: 0.2rem 0.4rem; font-size: 0.72rem;">
+                </div>
+            </div>
             <svg viewBox="0 0 ${width} ${height}" class="trend-svg" preserveAspectRatio="none">
+                <line x1="${padding}" y1="${targetY}" x2="${width - padding}" y2="${targetY}" stroke="var(--text-muted)" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="4 4" />
+                <text x="${padding}" y="${targetY - 5}" fill="var(--text-muted)" font-size="9" font-weight="700">TARGET (${targetScore})</text>
                 <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border-light)" stroke-dasharray="4 4" />
                 <polyline points="${polylinePoints}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 ${circlesHTML}
