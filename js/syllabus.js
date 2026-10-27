@@ -78,7 +78,7 @@ const syllabusEngine = {
 
         if (node.type === 'leaf') {
             stats.leaves = 1;
-            stats.maxPts = 3;
+            stats.maxPts = 2;
 
             const hasC = pData[`${node.id}_C`] || (node.legacyId && pData[`${node.legacyId}_C`]);
             const qCount = pData[`${node.id}_Q`] || (node.legacyId && pData[`${node.legacyId}_Q`]) || 0;
@@ -86,11 +86,10 @@ const syllabusEngine = {
             const rDateStr = pData[`${node.id}_R_D`];
             const tCount = pData[`${node.id}_T`] || (node.legacyId && pData[`${node.legacyId}_T`]) || 0;
 
-            if (hasC) { stats.c = 1; stats.pts += 1; }
-            if (qCount > 0) { stats.q = 1; stats.pts += 1; }
-            if (tCount > 0) { stats.t = 1; stats.pts += 1; }
+            if (hasC) { stats.c = 1; stats.pts += 1; stats.mastered += 0.5; }
+            if (qCount > 0) { stats.q = 1; stats.pts += 1; stats.mastered += 0.5; }
+            if (tCount > 0) { stats.t = 1; }
             if (rLevel > 0) { stats.r = 1; }
-            if (hasC && qCount > 0 && tCount > 0) stats.mastered = 1;
 
             if (hasC) {
                 let isDebt = false;
@@ -121,6 +120,7 @@ const syllabusEngine = {
             });
         }
 
+        stats.mastered = Math.round(stats.mastered * 10) / 10;
         stats.percent = stats.maxPts === 0 ? 0 : Math.round((stats.pts / stats.maxPts) * 100);
         return stats;
     }
@@ -240,7 +240,7 @@ const syllabusApp = {
                 const rDateStr = pData[`${node.id}_R_D`];
                 const tCount = pData[`${node.id}_T`] || (node.legacyId && pData[`${node.legacyId}_T`]) || 0;
 
-                const isMastered = hasC && qCount > 0 && tCount > 0;
+                const isMastered = Boolean(hasC && qCount > 0);
                 if (hideMastered && isMastered) return;
 
                 if (searchQuery && !node.name.toLowerCase().includes(searchQuery)) return;

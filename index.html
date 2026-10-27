@@ -212,7 +212,13 @@
                     <div class="dash-chart-container" id="dash-activity-chart"></div>
                 </div>
                 <div class="card">
-                    <div class="widget-header">Mock Trend (Last 10)</div>
+                    <div class="widget-header chart-header">
+                        <span>Mock Trend (Full)</span>
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted);">LAST</span>
+                            <input type="number" id="dash-mock-limit" class="small-number-input" value="10" min="2" max="500" style="width: 3.75rem; padding: 0.25rem 0.4rem; font-size: 0.75rem;">
+                        </div>
+                    </div>
                     <div class="dash-chart-container center-chart" id="dash-mock-chart"></div>
                 </div>
             </div>
@@ -432,7 +438,7 @@
             </div>
             <div class="settings-section danger-zone">
                 <button id="btn-clear-data" class="action-btn text-danger bold-btn">Clear All Data</button>
-                <div class="app-version">Study OS v1.0.0</div>
+                <div class="app-version">Study OS v1.0.1</div>
             </div>
         </section>
     </main>

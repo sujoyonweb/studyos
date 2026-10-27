@@ -114,6 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.id === 'setting-goal') settingsApp.update('dailyGoal', Math.max(0.5, parseFloat(target.value) || 8));
         if (target.id === 'setting-sound') settingsApp.update('soundEffects', target.checked);
         if (target.id === 'setting-awake') settingsApp.update('keepAwake', target.checked);
+        if (target.id === 'dash-mock-limit' || target.id === 'mock-page-limit') {
+            const limit = Math.max(2, Math.min(500, parseInt(target.value) || 10));
+            target.value = limit;
+            storage.setKey('mockGraphLimit', limit, true);
+            if (typeof dashboardApp !== 'undefined') dashboardApp.updateDashboard();
+            if (typeof mockApp !== 'undefined') mockApp.renderMocks();
+        }
     });
 
     document.addEventListener('input', (e) => {
