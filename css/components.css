@@ -297,7 +297,7 @@ input:checked + .toggle-slider:before { transform: translateX(1.25rem); }
     padding: 1rem;
     color: #ef4444;
     border-radius: var(--radius-xl, 1rem);
-    font-size: 0.875rem;
+    font-size: 0.56rem;
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
