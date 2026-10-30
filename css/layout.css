@@ -186,3 +186,54 @@ main {
         justify-content: center;
     }
 }
+
+@media (max-width: 768px) {
+    /* 1. Larger, native-feeling Sidenav Drawer buttons & icons */
+    .sidebar-header {
+        padding: 1.5rem 1.25rem 1.25rem 1.5rem;
+    }
+
+    .sidebar-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .mobile-close-btn {
+        padding: 0.5rem;
+    }
+
+    .mobile-close-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .sidebar-nav {
+        padding: 0.25rem 1rem;
+        gap: 0.45rem;
+    }
+
+    .sidebar .nav-btn {
+        padding: 0.95rem 1.15rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        gap: 0.9rem;
+        border-radius: 1rem;
+    }
+
+    .sidebar .nav-btn svg {
+        width: 21px;
+        height: 21px;
+        flex-shrink: 0;
+    }
+
+    /* 2. Compact 2x2 grid for the 4 top Dashboard cards on phones */
+    .dash-top-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    /* 3. Prevent 2-column Sync Hub buttons from wrapping on narrow screens */
+    .sync-card .action-btn {
+        padding: 1rem 0.75rem;
+        font-size: 0.82rem;
+    }
+}
